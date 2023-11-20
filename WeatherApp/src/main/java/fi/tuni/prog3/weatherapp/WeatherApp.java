@@ -67,6 +67,8 @@ public class WeatherApp extends Application {
     }
     
     private HBox getBottomHBox() {
+
+        // Test comment for test commit
         //Creating a VBox for the right side.
         HBox rightHBox = new HBox();
         rightHBox.setPrefHeight(330);

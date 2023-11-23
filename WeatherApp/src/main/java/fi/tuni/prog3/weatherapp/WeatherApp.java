@@ -20,12 +20,25 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
 // This version is being maintained by Abu
 
 /**
  * JavaFX Sisu
  */
 public class WeatherApp extends Application {
+
+    String api_key = "88a91051d6699b4cb230ff1ff2ebb3b1";
+    String city_loc = "";
+
+    private Label locLabel;
 
     @Override
     public void start(Stage stage) {
@@ -74,22 +87,49 @@ public class WeatherApp extends Application {
         Button unitButton = getUnitToggleButton();
         unitButton.setMinWidth(60);
 
-        // Creating search button
-        Button SearchButton = new Button("Search");
+        // Creating history button
+        Button HistoryButton = new Button("History");
 
         // Creating favourites button
 
         Button FavButton = new Button("Favourites");
 
-        // Creating spacer and adjusting button layout
+        // Adding search for location textbox
+
+        TextField locField = new TextField();
+        locField.setMaxWidth(100);
+        locField.setPromptText("Enter your city: ");
+
+        // Location search button
+
+        Button locButton = new Button("Search for city");
+
+        // Pressing enter is equal to pressing search button
+        locField.setOnKeyPressed(event -> {
+            if(event.getCode().getName().equals("Enter")){
+                locButton.fire();
+            }
+        });
+
+        locButton.setOnAction(event -> { // API call fetches city data
+            city_loc = locField.getText();
+
+            updateLocLabel();
+
+            //!!!String weatherData = getWeatherData(city_loc,api_key);
+
+        });
+
+         // Creating spacer and adjusting button layout
 
         Region spacer = new Region();
 
-        HBox.setMargin(SearchButton, new Insets(0, 10, 0, 0));
+        HBox.setMargin(HistoryButton, new Insets(0, 10, 0, 10));
+        HBox.setMargin(locField,new Insets(0,10,0,0));
         HBox.setMargin(spacer, new Insets(0, 280, 0, 0));
-        HBox.setMargin(unitButton, new Insets(0, 0, 0, 5));
+        HBox.setMargin(unitButton, new Insets(0, 10, 0, 5));
         
-        topHBox.getChildren().addAll(unitButton, spacer, SearchButton, FavButton);
+        topHBox.getChildren().addAll(unitButton, locField, locButton, HistoryButton, FavButton);
 
         return topHBox;
     }
@@ -103,37 +143,19 @@ public class WeatherApp extends Application {
         
         // Creating top label
         Label topBoxTitle = new Label();
-        topBoxTitle.setFont(Font.font("arial", FontWeight.BOLD, FontPosture.REGULAR, 12));
+        topBoxTitle.setFont(Font.font("Serif", FontWeight.BOLD, FontPosture.REGULAR, 20));
         topBoxTitle.setText("Today's weather in ");
 
-         // Adding search for location textbox
-
-        TextField locField = new TextField();
-        locField.setMaxWidth(100);
-        locField.setPromptText("Enter your city: ");
-
-        // This label will have the location name
-        Label locLabel = new Label();
+         // This label will have the location name
+        locLabel = new Label();
         locLabel.setMinWidth(80);
 
-        // Location search button
 
-        Button locButton = new Button("Search for city");
+            locLabel.setFont(Font.font("Serif", FontWeight.BOLD, FontPosture.REGULAR, 20));
 
-        locButton.setOnAction(event -> {
-            String location = locField.getText();
+            locLabel.setText(city_loc);
 
-            String locOutput = new String(location);
-            locLabel.setFont(Font.font("arial", FontWeight.BOLD, FontPosture.REGULAR, 12));
-
-            locLabel.setText(locOutput);
-        });
-
-        HBox.setMargin(locField, new Insets(0, 5, 0, 5));
-
-
-
-        leftHBox.getChildren().addAll(topBoxTitle, locLabel, locField, locButton);
+        leftHBox.getChildren().addAll(topBoxTitle, locLabel);
 
         return leftHBox;
     }
@@ -147,6 +169,19 @@ public class WeatherApp extends Application {
         rightHBox.getChildren().add(new Label("Bottom Panel"));
 
         return rightHBox;
+    }
+
+    private VBox getWeatherBox(){
+        VBox WeatherBox = new VBox();
+        WeatherBox.setPrefHeight(300);
+        WeatherBox.setStyle("-fx-background-color: #b1c2d4;");
+
+        return WeatherBox;
+    }
+
+    // Update location label
+    private void updateLocLabel(){
+        locLabel.setText(city_loc);
     }
 
     private Button getQuitButton() {
@@ -180,7 +215,27 @@ public class WeatherApp extends Application {
 
     }
 
-    private String getLocation(){
-        return "Test";
+    private String getWeatherData(String city, String apikey) throws IOException{
+        String apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apikey;
+        
+            URL url = new URL(apiUrl);
+
+            // Opening HTML connection
+
+            URLConnection connection = url.openConnection();
+            connection.setRequestProperty(apikey, apiUrl);
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String data = null;
+
+            while((data = br.readLine()) != null){
+
+            }
+            
+      
+
+        return "nothing";
+
     }
+
 }

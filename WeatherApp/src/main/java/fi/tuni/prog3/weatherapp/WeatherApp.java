@@ -30,6 +30,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.gson.Gson;
 
 // This version is being maintained by Abu
 
@@ -38,7 +42,11 @@ import java.net.URLConnection;
  */
 public class WeatherApp extends Application {
 
-    String api_key = "88a91051d6699b4cb230ff1ff2ebb3b1";
+    String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
+
+    // Container for city data
+    Map<String, WeatherData> history = new HashMap<>();
+    
 
     // This displays location name
     private Label locLabel;
@@ -63,7 +71,7 @@ public class WeatherApp extends Application {
         root.setBottom(quitButton);
         BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
 
-        Scene scene = new Scene(root, 500, 700);
+        Scene scene = new Scene(root, 600, 800);
         stage.setScene(scene);
         stage.setTitle("WeatherApp");
         stage.show();
@@ -86,6 +94,7 @@ public class WeatherApp extends Application {
     private HBox getTopButtonBox() {
         // Creating top box for buttons
         HBox topHBox = new HBox();
+        topHBox.setPadding(new Insets(5,5,0,5));
         topHBox.setPrefHeight(50);
         topHBox.setStyle("-fx-background-color: #05de29;");
 
@@ -111,10 +120,18 @@ public class WeatherApp extends Application {
 
         Button locButton = new Button("Search for city");
 
-        locButton.setOnAction(event -> { 
+        locButton.setOnAction(event -> {
             city_loc = locField.getText();
 
-            // API call fetches city data in here (not implemented)!
+
+            // API CALL HAPPENS HERE!!! 
+            try {
+                getWeatherData(city_loc.toLowerCase(), api_key_Abu);
+            } catch (IOException e) {
+
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
             updateLocLabel(); // Updates location name
 
@@ -154,6 +171,7 @@ public class WeatherApp extends Application {
 
         // Creating top label
         Label topBoxTitle = new Label();
+        topBoxTitle.setPadding(new Insets(5,5,5,5));
         Text todaysWeather = new Text("Today's weather in ");
         todaysWeather.setFont(titleFont);
         todaysWeather.setStroke(Color.GREEN);
@@ -260,18 +278,35 @@ public class WeatherApp extends Application {
         URL url = new URL(apiUrl);
 
         // Opening HTML connection
-
         URLConnection connection = url.openConnection();
         connection.setRequestProperty(apikey, apiUrl);
 
+        // Establishing the readers
         BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String data = null;
+        StringBuilder respoStringBuilder = new StringBuilder();
+        String line;
 
-        while ((data = br.readLine()) != null) {
-
+        // Reading the response
+        while ((line = br.readLine()) != null) {
+            respoStringBuilder.append(line);
         }
 
-        return "nothing";
+        // Converting stringbuilder to string
+        String response = respoStringBuilder.toString();
+
+        // Using Gson to parse JSON
+        Gson gson = new Gson();
+
+        WeatherData weatherData = gson.fromJson(response, WeatherData.class);
+
+        // Saving generated weatherData object to a container for later accessing
+        history.put(weatherData.getName(), weatherData);
+
+        // Test print
+
+        System.out.println("Weather in " + weatherData.getName() + " " + weatherData.getWeather().get(0).getDescription() + " " + String.format("%.2f", weatherData.getMain().getTemp()));
+
+        return response;
 
     }
 

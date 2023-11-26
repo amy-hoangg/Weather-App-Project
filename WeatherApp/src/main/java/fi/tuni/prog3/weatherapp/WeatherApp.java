@@ -5,14 +5,17 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
@@ -36,9 +39,13 @@ import java.net.URLConnection;
 public class WeatherApp extends Application {
 
     String api_key = "88a91051d6699b4cb230ff1ff2ebb3b1";
-    String city_loc = "";
 
+    // This displays location name
     private Label locLabel;
+    private String city_loc;
+    private Font titleFont;
+    private Font locFont;
+    private Text city_locText;
 
     @Override
     public void start(Stage stage) {
@@ -76,13 +83,13 @@ public class WeatherApp extends Application {
         return centerHBox;
     }
 
-    private HBox getTopButtonBox(){
+    private HBox getTopButtonBox() {
         // Creating top box for buttons
         HBox topHBox = new HBox();
         topHBox.setPrefHeight(50);
         topHBox.setStyle("-fx-background-color: #05de29;");
 
-        //creating unit toggle button
+        // creating unit toggle button
 
         Button unitButton = getUnitToggleButton();
         unitButton.setMinWidth(60);
@@ -104,31 +111,31 @@ public class WeatherApp extends Application {
 
         Button locButton = new Button("Search for city");
 
+        locButton.setOnAction(event -> { 
+            city_loc = locField.getText();
+
+            // API call fetches city data in here (not implemented)!
+
+            updateLocLabel(); // Updates location name
+
+        });
+
         // Pressing enter is equal to pressing search button
         locField.setOnKeyPressed(event -> {
-            if(event.getCode().getName().equals("Enter")){
+            if (event.getCode().getName().equals("Enter")) {
                 locButton.fire();
             }
         });
 
-        locButton.setOnAction(event -> { // API call fetches city data
-            city_loc = locField.getText();
-
-            updateLocLabel();
-
-            //!!!String weatherData = getWeatherData(city_loc,api_key);
-
-        });
-
-         // Creating spacer and adjusting button layout
+        // Creating spacer and adjusting button layout
 
         Region spacer = new Region();
 
         HBox.setMargin(HistoryButton, new Insets(0, 10, 0, 10));
-        HBox.setMargin(locField,new Insets(0,10,0,0));
+        HBox.setMargin(locField, new Insets(0, 10, 0, 0));
         HBox.setMargin(spacer, new Insets(0, 280, 0, 0));
         HBox.setMargin(unitButton, new Insets(0, 10, 0, 5));
-        
+
         topHBox.getChildren().addAll(unitButton, locField, locButton, HistoryButton, FavButton);
 
         return topHBox;
@@ -138,22 +145,53 @@ public class WeatherApp extends Application {
         // Creating a HBox for the left side.
         HBox leftHBox = new HBox();
         leftHBox.setPrefHeight(330);
-        leftHBox.setStyle("-fx-background-color: #8fc6fd;");
+        leftHBox.setStyle("-fx-background-color: #327aed;");
 
-        
+        // Creating custom text font
+        titleFont = Font.loadFont(
+                "file:///C:/Opiskelu/Prog3_project/group3163/WeatherApp/src/main/java/custom_fonts/snownly/SNOWNLY.ttf",
+                35);
+
         // Creating top label
         Label topBoxTitle = new Label();
-        topBoxTitle.setFont(Font.font("Serif", FontWeight.BOLD, FontPosture.REGULAR, 20));
-        topBoxTitle.setText("Today's weather in ");
+        Text todaysWeather = new Text("Today's weather in ");
+        todaysWeather.setFont(titleFont);
+        todaysWeather.setStroke(Color.GREEN);
+        todaysWeather.setFill(Color.BLACK);
+        todaysWeather.setStrokeWidth(1.3);
+        // Shadow effects
+        DropShadow shadow = new DropShadow();
+        shadow.setOffsetY(-3.0);
+        // Extra text effect
+        todaysWeather.setEffect(shadow);
+        // Change label looks
+        topBoxTitle.setTextFill(Color.SKYBLUE);
+        topBoxTitle.setMinWidth(169);
+        topBoxTitle.setGraphic(todaysWeather);
 
-         // This label will have the location name
+        // City name and its graphics
+        locFont = Font.loadFont(
+                "file:///C:/Opiskelu/Prog3_project/group3163/WeatherApp/src/main/java/custom_fonts/revorioum/Revo.ttf",
+                50);
+
+        String city_loc = "";
+        city_locText = new Text(city_loc);
+        city_locText.setFont(locFont);
+        city_locText.setStroke(Color.DARKGREEN);
+        city_locText.setFill(Color.BLACK);
+        city_locText.setStrokeWidth(1.3);
+        // Shadow effects
+        shadow.setOffsetY(5.0);
+        // Extra text effect
+        city_locText.setEffect(shadow);
+
+        // This label will have the location name
         locLabel = new Label();
         locLabel.setMinWidth(80);
+        locLabel.setTextFill(Color.BLACK);
 
-
-            locLabel.setFont(Font.font("Serif", FontWeight.BOLD, FontPosture.REGULAR, 20));
-
-            locLabel.setText(city_loc);
+        locLabel.setGraphic(city_locText);
+        ;
 
         leftHBox.getChildren().addAll(topBoxTitle, locLabel);
 
@@ -171,7 +209,7 @@ public class WeatherApp extends Application {
         return rightHBox;
     }
 
-    private VBox getWeatherBox(){
+    private VBox getWeatherBox() {
         VBox WeatherBox = new VBox();
         WeatherBox.setPrefHeight(300);
         WeatherBox.setStyle("-fx-background-color: #b1c2d4;");
@@ -180,8 +218,9 @@ public class WeatherApp extends Application {
     }
 
     // Update location label
-    private void updateLocLabel(){
-        locLabel.setText(city_loc);
+    private void updateLocLabel() {
+        city_locText.setFont(locFont);
+        city_locText.setText(city_loc);
     }
 
     private Button getQuitButton() {
@@ -196,17 +235,17 @@ public class WeatherApp extends Application {
         return button;
     }
 
-    //Unit toggle button functionality
+    // Unit toggle button functionality
 
-    private Button getUnitToggleButton(){
+    private Button getUnitToggleButton() {
         Button unitButton = new Button("Imperial");
 
         unitButton.setOnAction((ActionEvent event) -> {
-            if(unitButton.getText() == "Imperial"){
+            if (unitButton.getText() == "Imperial") {
                 unitButton.setText("Metric");
             }
 
-            else if(unitButton.getText() == "Metric"){
+            else if (unitButton.getText() == "Metric") {
                 unitButton.setText("Imperial");
             }
         });
@@ -215,24 +254,22 @@ public class WeatherApp extends Application {
 
     }
 
-    private String getWeatherData(String city, String apikey) throws IOException{
+    private String getWeatherData(String city, String apikey) throws IOException {
         String apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apikey;
-        
-            URL url = new URL(apiUrl);
 
-            // Opening HTML connection
+        URL url = new URL(apiUrl);
 
-            URLConnection connection = url.openConnection();
-            connection.setRequestProperty(apikey, apiUrl);
+        // Opening HTML connection
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String data = null;
+        URLConnection connection = url.openConnection();
+        connection.setRequestProperty(apikey, apiUrl);
 
-            while((data = br.readLine()) != null){
+        BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String data = null;
 
-            }
-            
-      
+        while ((data = br.readLine()) != null) {
+
+        }
 
         return "nothing";
 

@@ -23,6 +23,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
+<<<<<<< HEAD
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -37,6 +38,9 @@ import com.google.gson.Gson;
 
 // This version is being maintained by Abu
 
+=======
+//Change made by Abu
+>>>>>>> 02ea708a7f487d18581dfefe900a5b2e49ccd93c
 /**
  * JavaFX Sisu
  */
@@ -217,7 +221,13 @@ public class WeatherApp extends Application {
     }
 
     private HBox getBottomHBox() {
+<<<<<<< HEAD
         // Creating a VBox for the right side.
+=======
+
+        // Test comment for test commit
+        //Creating a VBox for the right side.
+>>>>>>> 02ea708a7f487d18581dfefe900a5b2e49ccd93c
         HBox rightHBox = new HBox();
         rightHBox.setPrefHeight(330);
         rightHBox.setStyle("-fx-background-color: #b1c2d4;");

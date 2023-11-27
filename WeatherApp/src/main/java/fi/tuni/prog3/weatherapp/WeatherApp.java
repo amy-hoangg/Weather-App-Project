@@ -226,6 +226,8 @@ public class WeatherApp extends Application {
         rightHBox.getChildren().add(new Label("Bottom Panel"));
 
         return rightHBox;
+
+        // Test comment for test commit for my own branch (hans_branch)
     }
 
     private VBox getWeatherBox() {

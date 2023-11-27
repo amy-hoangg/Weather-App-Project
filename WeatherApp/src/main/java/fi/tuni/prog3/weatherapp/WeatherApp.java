@@ -9,6 +9,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
@@ -44,6 +45,7 @@ import com.google.gson.Gson;
 public class WeatherApp extends Application {
 
     String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
+    // String api_key_Hans = "83d2b0a2d2140939c7f59d054de6a413";
 
     // Container for city data
     Map<String, WeatherData> history = new HashMap<>();
@@ -87,7 +89,8 @@ public class WeatherApp extends Application {
         VBox centerHBox = new VBox(10);
 
         // Adding two VBox to the HBox.
-        centerHBox.getChildren().addAll(getTopButtonBox(), getTopHBox(), getBottomHBox());
+        centerHBox.getChildren().addAll(getTopButtonBox(), getTopHBox(),
+         getBottomHBox(), getBottomScrollPane());
 
         return centerHBox;
     }
@@ -226,9 +229,58 @@ public class WeatherApp extends Application {
         rightHBox.getChildren().add(new Label("Bottom Panel"));
 
         return rightHBox;
-
-        // Test comment for test commit for my own branch (hans_branch)
     }
+
+    public ScrollPane getBottomScrollPane() {
+        // Creating a VBox for the bottom side.
+        HBox bottomVBox = new HBox();
+        bottomVBox.setPrefHeight(200);
+        bottomVBox.setStyle("-fx-background-color: white;");
+
+        bottomVBox.setSpacing(10);
+        bottomVBox.setAlignment(Pos.CENTER);
+
+        String[] hours = {"00", "01", "02", "03", "04", "05", "06", "07",
+                "08", "09", "10", "11", "12", "13", "14", "15", "16", "17",
+                 "18", "19", "20", "21", "22", "23", "24"};
+
+        // Create a column for each hour
+        for (String hour : hours) {
+            VBox hourColumn = createHourColumn(hour);
+            bottomVBox.getChildren().add(hourColumn);
+        }
+
+        // Add scrollbar to bottom to scroll through hours
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(bottomVBox);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+
+        return scrollPane;
+    }
+
+    private VBox createHourColumn(String hour) {
+        VBox hourColumn = new VBox();
+        hourColumn.setAlignment(Pos.CENTER);
+        
+        // TODO: Get actual weather data
+        String weatherIcon = "???"; // Weather icon representing state of weather
+        String temperature = "-42°C";
+        String windDirection = "->"; // Arrow representing direction of wind
+        String humidity = "420%";
+    
+        // Labels to display weather data
+        Label hourLabel = new Label(hour);
+        Label iconLabel = new Label(weatherIcon);
+        Label tempLabel = new Label(temperature);
+        Label windLabel = new Label(windDirection);
+        Label humidityLabel = new Label(humidity);
+    
+        // Add labels to VBox
+        hourColumn.getChildren().addAll(hourLabel, iconLabel, tempLabel, windLabel, humidityLabel);
+    
+        return hourColumn;
+    }
+
 
     private VBox getWeatherBox() {
         VBox WeatherBox = new VBox();

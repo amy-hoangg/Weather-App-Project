@@ -160,7 +160,7 @@ public class WeatherApp extends Application {
         HBox.setMargin(locField, new Insets(0, 10, 0, 0));
         HBox.setMargin(spacer, new Insets(0, 280, 0, 0));
         HBox.setMargin(unitButton, new Insets(0, 10, 0, 5));
-        HBox.setMargin(FavButton, new Insets(0,10,0,0));
+        HBox.setMargin(FavButton, new Insets(0,10,0,10));
 
         topHBox.getChildren().addAll(unitButton, locField, locButton, FavButton, langButton());
 
@@ -315,13 +315,13 @@ public class WeatherApp extends Application {
     private String getWeatherData(String city, String apikey, String timespan) throws IOException {
         String apiUrl;
         if (timespan == "hourly") {
-            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/hourly?q="+ city + "&appid=" + apikey + "&units=metric&lang=en";
+            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/hourly?q=" + city + "&appid=" + apikey + "&units=" + unit + "&lang=" + lang;
         }
         else if (timespan == "daily") {
-            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?q="+ city + "&appid=" + apikey + "&units=metric&lang=en";
+            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?q="+ city + "&appid=" + apikey + "&units=" + unit + "&lang=" + lang;
         }
         else {
-            apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apikey;
+            apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apikey + "&units=" + unit + "&lang=" + lang;
         }
 
 

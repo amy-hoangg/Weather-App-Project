@@ -280,7 +280,7 @@ public class WeatherApp extends Application {
         return hourColumn;
     }
 
-
+    
     private VBox getWeatherBox() {
         VBox WeatherBox = new VBox();
         WeatherBox.setPrefHeight(300);

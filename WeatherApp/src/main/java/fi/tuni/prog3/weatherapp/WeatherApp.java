@@ -345,7 +345,7 @@ public class WeatherApp extends Application {
         Gson gson = new Gson();
 
         // If current weather:
-        WeatherData weatherData = gson.fromJson(response, WeatherData.class);
+        CurrentWeatherData todaysWeatherData = gson.fromJson(response, CurrentWeatherData.class);
 
         // TODO: Else IF Hourly weather:
 
@@ -356,13 +356,13 @@ public class WeatherApp extends Application {
             // DailyWeatherData weatherData = gson.fromJson(response, DailyWeatherData.class);
 
         // Saving generated weatherData object to a container for later accessing
-        history.put(weatherData.getName(), weatherData);
+        current_history.put(todaysWeatherData.getName(), todaysWeatherData);
 
         // Test print
 
         System.out
-                .println("Weather in " + weatherData.getName() + " " + weatherData.getWeather().get(0).getDescription()
-                        + " " + String.format("%.2f", weatherData.getMain().getTemp()));
+                .println("Weather in " + todaysWeatherData.getName() + " " + todaysWeatherData.getWeather().get(0).getDescription()
+                        + " " + String.format("%.2f", todaysWeatherData.getMain().getTemp()));
 
         return response;
 

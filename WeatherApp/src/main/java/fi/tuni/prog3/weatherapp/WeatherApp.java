@@ -49,7 +49,6 @@ public class WeatherApp extends Application {
 
     // Container for city data
     Map<String, WeatherData> history = new HashMap<>();
-    
 
     // This displays location name
     private Label locLabel;
@@ -90,7 +89,7 @@ public class WeatherApp extends Application {
 
         // Adding two VBox to the HBox.
         centerHBox.getChildren().addAll(getTopButtonBox(), getTopHBox(),
-         getBottomHBox(), getBottomScrollPane());
+                getMiddleBox(), getBottomScrollPane());
 
         return centerHBox;
     }
@@ -98,7 +97,7 @@ public class WeatherApp extends Application {
     private HBox getTopButtonBox() {
         // Creating top box for buttons
         HBox topHBox = new HBox();
-        topHBox.setPadding(new Insets(5,5,0,5));
+        topHBox.setPadding(new Insets(5, 5, 0, 5));
         topHBox.setPrefHeight(50);
         topHBox.setStyle("-fx-background-color: #05de29;");
 
@@ -106,9 +105,6 @@ public class WeatherApp extends Application {
 
         Button unitButton = getUnitToggleButton();
         unitButton.setMinWidth(60);
-
-        // Creating history button
-        Button HistoryButton = new Button("History");
 
         // Creating favourites button
 
@@ -127,8 +123,7 @@ public class WeatherApp extends Application {
         locButton.setOnAction(event -> {
             city_loc = locField.getText();
 
-
-            // API CALL HAPPENS HERE!!! 
+            // API CALL HAPPENS HERE!!!
             try {
                 getWeatherData(city_loc.toLowerCase(), api_key_Abu);
             } catch (IOException e) {
@@ -152,12 +147,11 @@ public class WeatherApp extends Application {
 
         Region spacer = new Region();
 
-        HBox.setMargin(HistoryButton, new Insets(0, 10, 0, 10));
         HBox.setMargin(locField, new Insets(0, 10, 0, 0));
         HBox.setMargin(spacer, new Insets(0, 280, 0, 0));
         HBox.setMargin(unitButton, new Insets(0, 10, 0, 5));
 
-        topHBox.getChildren().addAll(unitButton, locField, locButton, HistoryButton, FavButton);
+        topHBox.getChildren().addAll(unitButton, locField, locButton, FavButton);
 
         return topHBox;
     }
@@ -175,7 +169,7 @@ public class WeatherApp extends Application {
 
         // Creating top label
         Label topBoxTitle = new Label();
-        topBoxTitle.setPadding(new Insets(5,5,5,5));
+        topBoxTitle.setPadding(new Insets(5, 5, 5, 5));
         Text todaysWeather = new Text("Today's weather in ");
         todaysWeather.setFont(titleFont);
         todaysWeather.setStroke(Color.GREEN);
@@ -220,15 +214,33 @@ public class WeatherApp extends Application {
         return leftHBox;
     }
 
-    private HBox getBottomHBox() {
-        // Creating a VBox for the right side.
+    private ScrollPane getMiddleBox() {
+        // Creating a ScrollPane for the HBox.
+        ScrollPane middleBox = new ScrollPane();
+        middleBox.setPrefHeight(330);
+        middleBox.setStyle("-fx-background-color: #b1c2d4;");
+        middleBox.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Set horizontal scrollbar always visible
+
+        // Creating an HBox for the right side.
         HBox rightHBox = new HBox();
-        rightHBox.setPrefHeight(330);
-        rightHBox.setStyle("-fx-background-color: #b1c2d4;");
 
-        rightHBox.getChildren().add(new Label("Bottom Panel"));
+        // Creating forecast button
+        Button forecastButton = new Button("Forecast");
+        HBox.setMargin(forecastButton, new Insets(5, 10, 5, 10));
 
-        return rightHBox;
+        // Creating history button
+        Button historyButton = new Button("History");
+        HBox.setMargin(historyButton, new Insets(5, 10, 5, 0));
+
+        // Creating map button
+        Button mapButton = new Button("Map");
+        HBox.setMargin(mapButton, new Insets(5, 10, 5, 0));
+
+        rightHBox.getChildren().addAll(forecastButton, historyButton, mapButton);
+
+        middleBox.setContent(rightHBox); // Set HBox as content of ScrollPane
+
+        return middleBox;
     }
 
     public ScrollPane getBottomScrollPane() {
@@ -240,9 +252,9 @@ public class WeatherApp extends Application {
         bottomVBox.setSpacing(10);
         bottomVBox.setAlignment(Pos.CENTER);
 
-        String[] hours = {"00", "01", "02", "03", "04", "05", "06", "07",
+        String[] hours = { "00", "01", "02", "03", "04", "05", "06", "07",
                 "08", "09", "10", "11", "12", "13", "14", "15", "16", "17",
-                 "18", "19", "20", "21", "22", "23", "24"};
+                "18", "19", "20", "21", "22", "23", "24" };
 
         // Create a column for each hour
         for (String hour : hours) {
@@ -261,27 +273,26 @@ public class WeatherApp extends Application {
     private VBox createHourColumn(String hour) {
         VBox hourColumn = new VBox();
         hourColumn.setAlignment(Pos.CENTER);
-        
+
         // TODO: Get actual weather data
         String weatherIcon = "???"; // Weather icon representing state of weather
         String temperature = "-42°C";
         String windDirection = "->"; // Arrow representing direction of wind
         String humidity = "420%";
-    
+
         // Labels to display weather data
         Label hourLabel = new Label(hour);
         Label iconLabel = new Label(weatherIcon);
         Label tempLabel = new Label(temperature);
         Label windLabel = new Label(windDirection);
         Label humidityLabel = new Label(humidity);
-    
+
         // Add labels to VBox
         hourColumn.getChildren().addAll(hourLabel, iconLabel, tempLabel, windLabel, humidityLabel);
-    
+
         return hourColumn;
     }
 
-    
     private VBox getWeatherBox() {
         VBox WeatherBox = new VBox();
         WeatherBox.setPrefHeight(300);
@@ -359,7 +370,9 @@ public class WeatherApp extends Application {
 
         // Test print
 
-        System.out.println("Weather in " + weatherData.getName() + " " + weatherData.getWeather().get(0).getDescription() + " " + String.format("%.2f", weatherData.getMain().getTemp()));
+        System.out
+                .println("Weather in " + weatherData.getName() + " " + weatherData.getWeather().get(0).getDescription()
+                        + " " + String.format("%.2f", weatherData.getMain().getTemp()));
 
         return response;
 

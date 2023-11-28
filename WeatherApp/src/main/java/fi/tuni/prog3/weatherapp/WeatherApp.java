@@ -45,7 +45,6 @@ import com.google.gson.Gson;
 public class WeatherApp extends Application {
 
     String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
-    // String api_key_Hans = "83d2b0a2d2140939c7f59d054de6a413";
 
     // Container for city data
     Map<String, WeatherData> history = new HashMap<>();

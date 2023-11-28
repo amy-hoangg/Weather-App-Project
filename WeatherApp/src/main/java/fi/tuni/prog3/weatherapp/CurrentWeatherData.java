@@ -11,7 +11,7 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 
-public class WeatherData{
+public class CurrentWeatherData{
     public Coord coord;
     public List<Weather> weather;
     public String base;

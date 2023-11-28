@@ -46,8 +46,10 @@ public class WeatherApp extends Application {
     String unit = "metric";
     String lang = "en";
 
-    // Container for city data
-    Map<String, WeatherData> history = new HashMap<>();
+    // Container for current city weather data
+    Map<String, CurrentWeatherData> current_history = new HashMap<>();
+    Map<String, HourlyWeatherData> hourly_history = new HashMap<>();
+    //Map<String, DailyWeatherData> daily_history = new HashMap<>();
 
     String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
     // String api_key_Hans = "83d2b0a2d2140939c7f59d054de6a413";

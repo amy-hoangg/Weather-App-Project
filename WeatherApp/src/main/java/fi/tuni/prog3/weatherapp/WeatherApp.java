@@ -342,7 +342,16 @@ public class WeatherApp extends Application {
         // Using Gson to parse JSON
         Gson gson = new Gson();
 
+        // If current weather:
         WeatherData weatherData = gson.fromJson(response, WeatherData.class);
+
+        // TODO: Else IF Hourly weather:
+
+            // HourlyWeatherData weatherData = gson.fromJson(response, HourlyWeatherData.class);
+
+        // TODO: Else daily weather:
+
+            // DailyWeatherData weatherData = gson.fromJson(response, DailyWeatherData.class);
 
         // Saving generated weatherData object to a container for later accessing
         history.put(weatherData.getName(), weatherData);

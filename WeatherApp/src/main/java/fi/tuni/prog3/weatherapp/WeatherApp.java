@@ -3,11 +3,13 @@ package fi.tuni.prog3.weatherapp;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -25,8 +27,12 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -43,12 +49,15 @@ import com.google.gson.Gson;
  * JavaFX Sisu
  */
 public class WeatherApp extends Application {
-
-    String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
-    // String api_key_Hans = "83d2b0a2d2140939c7f59d054de6a413";
+    
+    String unit = "metric";
+    String lang = "en";
 
     // Container for city data
     Map<String, WeatherData> history = new HashMap<>();
+
+    String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
+    // String api_key_Hans = "83d2b0a2d2140939c7f59d054de6a413";
     
 
     // This displays location name
@@ -61,6 +70,7 @@ public class WeatherApp extends Application {
     @Override
     public void start(Stage stage) {
 
+        
         // Creating a new BorderPane.
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(10, 10, 10, 10));
@@ -127,12 +137,10 @@ public class WeatherApp extends Application {
         locButton.setOnAction(event -> {
             city_loc = locField.getText();
 
-
-            // API CALL HAPPENS HERE!!! 
+            //API call for weekly/current weather happens here
             try {
                 getWeatherData(city_loc.toLowerCase(), api_key_Abu);
             } catch (IOException e) {
-
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -156,8 +164,9 @@ public class WeatherApp extends Application {
         HBox.setMargin(locField, new Insets(0, 10, 0, 0));
         HBox.setMargin(spacer, new Insets(0, 280, 0, 0));
         HBox.setMargin(unitButton, new Insets(0, 10, 0, 5));
+        HBox.setMargin(FavButton, new Insets(0,10,0,0));
 
-        topHBox.getChildren().addAll(unitButton, locField, locButton, HistoryButton, FavButton);
+        topHBox.getChildren().addAll(unitButton, locField, locButton, HistoryButton, FavButton, langButton());
 
         return topHBox;
     }
@@ -290,6 +299,46 @@ public class WeatherApp extends Application {
         return WeatherBox;
     }
 
+    private String getWeatherData(String city, String apikey) throws IOException {
+        String apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apikey + "&units=" + unit + "&lang=" + lang;
+
+        URL url = new URL(apiUrl);
+
+        // Opening HTML connection
+        URLConnection connection = url.openConnection();
+        connection.setRequestProperty(apikey, apiUrl);
+
+        // Establishing the readers
+        BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        StringBuilder respoStringBuilder = new StringBuilder();
+        String line;
+
+        // Reading the response
+        while ((line = br.readLine()) != null) {
+            respoStringBuilder.append(line);
+        }
+
+        br.close();
+
+        // Converting stringbuilder to string
+        String response = respoStringBuilder.toString();
+
+        // Using Gson to parse JSON
+        Gson gson = new Gson();
+
+        WeatherData weatherData = gson.fromJson(response, WeatherData.class);
+
+        // Saving generated weatherData object to a container for later accessing
+        history.put(weatherData.getName(), weatherData);
+
+        // Test print
+
+        System.out.println("Weather in " + weatherData.getName() + " " + weatherData.getWeather().get(0).getDescription() + " " + String.format("%.2f", weatherData.getMain().getTemp()));
+
+        return response;
+
+    }
+
     // Update location label
     private void updateLocLabel() {
         city_locText.setFont(locFont);
@@ -311,15 +360,17 @@ public class WeatherApp extends Application {
     // Unit toggle button functionality
 
     private Button getUnitToggleButton() {
-        Button unitButton = new Button("Imperial");
+        Button unitButton = new Button("Metric");
 
         unitButton.setOnAction((ActionEvent event) -> {
             if (unitButton.getText() == "Imperial") {
                 unitButton.setText("Metric");
+                unit = "metric";
             }
 
             else if (unitButton.getText() == "Metric") {
                 unitButton.setText("Imperial");
+                unit = "imperial";
             }
         });
 
@@ -327,42 +378,27 @@ public class WeatherApp extends Application {
 
     }
 
-    private String getWeatherData(String city, String apikey) throws IOException {
-        String apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apikey;
+    private ComboBox<String> langButton(){
+        
+        ComboBox<String> langBox = new ComboBox<>();
+        // Add options to the ComboBox
+        langBox.getItems().addAll("en", "fi", "fr", "tr", "az", "zh_cn", "vi");
+        langBox.setValue("en");
 
-        URL url = new URL(apiUrl);
+        lang = langBox.getValue();
 
-        // Opening HTML connection
-        URLConnection connection = url.openConnection();
-        connection.setRequestProperty(apikey, apiUrl);
+        langBox.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event){
+                lang = langBox.getValue();
+                
+            }
+        });
 
-        // Establishing the readers
-        BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder respoStringBuilder = new StringBuilder();
-        String line;
-
-        // Reading the response
-        while ((line = br.readLine()) != null) {
-            respoStringBuilder.append(line);
-        }
-
-        // Converting stringbuilder to string
-        String response = respoStringBuilder.toString();
-
-        // Using Gson to parse JSON
-        Gson gson = new Gson();
-
-        WeatherData weatherData = gson.fromJson(response, WeatherData.class);
-
-        // Saving generated weatherData object to a container for later accessing
-        history.put(weatherData.getName(), weatherData);
-
-        // Test print
-
-        System.out.println("Weather in " + weatherData.getName() + " " + weatherData.getWeather().get(0).getDescription() + " " + String.format("%.2f", weatherData.getMain().getTemp()));
-
-        return response;
-
+        return langBox;
     }
+
+
+    
 
 }

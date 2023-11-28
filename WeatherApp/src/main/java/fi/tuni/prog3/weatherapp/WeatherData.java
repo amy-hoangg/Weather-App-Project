@@ -1,8 +1,17 @@
 package fi.tuni.prog3.weatherapp;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class WeatherData {
+import com.google.gson.Gson;
+
+public class WeatherData{
     public Coord coord;
     public List<Weather> weather;
     public String base;
@@ -186,7 +195,7 @@ public class WeatherData {
 
         // Getter and Setter methods...
         public double getTemp() {
-            return temp - 273.15;
+            return temp;
         }
 
         public void setTemp(double temp) {
@@ -210,7 +219,7 @@ public class WeatherData {
         }
 
         public double getTemp_min() {
-            return temp_min - 273.15;
+            return temp_min;
         }
 
         public void setTemp_min(double temp_min) {
@@ -218,7 +227,7 @@ public class WeatherData {
         }
 
         public double getTemp_max() {
-            return temp_max - 273.15;
+            return temp_max;
         }
 
         public void setTemp_max(double temp_max) {
@@ -318,5 +327,7 @@ public class WeatherData {
             this.sunset = sunset;
         }
     }
+
+    
 }
 

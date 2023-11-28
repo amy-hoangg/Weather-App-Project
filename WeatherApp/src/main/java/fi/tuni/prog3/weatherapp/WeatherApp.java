@@ -36,8 +36,8 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 
-// This version is being maintained by Abu
-// Latest update: API call is working
+// This version is being maintained by Hans
+// Latest update: HourlyWeatherData.java
 
 /**
  * JavaFX Sisu

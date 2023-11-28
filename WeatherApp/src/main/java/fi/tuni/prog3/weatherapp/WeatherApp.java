@@ -38,6 +38,7 @@ import com.google.gson.Gson;
  */
 public class WeatherApp extends Application {
 
+    // TODO: add a separate container for api_key
     String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
 
     // Container for city data
@@ -118,7 +119,7 @@ public class WeatherApp extends Application {
 
             // API CALL HAPPENS HERE!!!
             try {
-                getWeatherData(city_loc.toLowerCase(), api_key_Abu);
+                getWeatherData(city_loc.toLowerCase(), api_key_Abu, "current");
             } catch (IOException e) {
 
                 // TODO Auto-generated catch block
@@ -331,8 +332,18 @@ public class WeatherApp extends Application {
 
     }
 
-    private String getWeatherData(String city, String apikey) throws IOException {
-        String apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apikey;
+    private String getWeatherData(String city, String apikey, String timespan) throws IOException {
+        String apiUrl;
+        if (timespan == "hourly") {
+            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/hourly?q="+ city + "&appid=" + apikey + "&units=metric&lang=en";
+        }
+        else if (timespan == "daily") {
+            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?q="+ city + "&appid=" + apikey + "&units=metric&lang=en";
+        }
+        else {
+            apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apikey;
+        }
+
 
         URL url = new URL(apiUrl);
 

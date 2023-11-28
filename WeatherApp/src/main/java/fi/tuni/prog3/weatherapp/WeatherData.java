@@ -2,7 +2,7 @@ package fi.tuni.prog3.weatherapp;
 
 import java.util.List;
 
-public class WeatherData {
+public class WeatherData implements iAPI{
     public Coord coord;
     public List<Weather> weather;
     public String base;
@@ -317,6 +317,24 @@ public class WeatherData {
         public void setSunset(long sunset) {
             this.sunset = sunset;
         }
+    }
+
+    @Override
+    public String lookUpLocation(String loc) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'lookUpLocation'");
+    }
+
+    @Override
+    public String getCurrentWeather(double lat, double lon) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getCurrentWeather'");
+    }
+
+    @Override
+    public String getForecast(double lat, double lon) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getForecast'");
     }
 }
 

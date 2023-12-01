@@ -11,7 +11,7 @@ package fi.tuni.prog3.weatherapp;
 public interface iAPI {
     
     /**
-     * Returns coordinates for a location.
+     * Returns coordinates for a location and returns weather data as a Wetaherdata-type object based on parameter.
      * @param loc Name of the location for which coordinates should be fetched.
      * @return String.
      */

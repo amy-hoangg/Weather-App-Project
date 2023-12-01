@@ -13,6 +13,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -58,16 +60,25 @@ public class WeatherApp extends Application {
 
     // This displays location name
     private Label locLabel;
+    private Label temperLabel;
     private String city_loc;
     private String description;
+    private String temperature;
     private Font titleFont;
     private Font locFont;
-    private Font desc_font;
+    private Font descFont;
+    private Font def_font;
     private Text city_locText;
     private Text descriptionText;
+    private Text temperText;
+    private ImageView weatherImage;
+    private Image CurrentWeatherImage;
 
     @Override
     public void start(Stage stage) {
+        System.setProperty("file.encoding", "UTF-8"); // Needed for non-latin letters
+        // Default font for this app
+        def_font = Font.font("Arial", 20);
 
         // Creating a new BorderPane.
         BorderPane root = new BorderPane();
@@ -137,6 +148,8 @@ public class WeatherApp extends Application {
                 getWeatherData(city_loc, api_key_Abu, "current");
                 updateLocLabel();
                 updateDescriptionLabel();
+                updateWeatherImage();
+                updateTemperText();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -184,21 +197,19 @@ public class WeatherApp extends Application {
         locationBox.setPrefHeight(15);
 
         // Creating custom text font
-        titleFont = Font.loadFont(
-                "file:///C:/Opiskelu/Prog3_project/group3163/WeatherApp/src/main/java/custom_fonts/snownly/SNOWNLY.ttf",
-                35);
+        titleFont = Font.font(def_font.getFamily(), FontWeight.BOLD, 30);
 
         // Creating top label
         Label topBoxTitle = new Label();
         topBoxTitle.setPadding(new Insets(5, 5, 5, 5));
         Text todaysWeather = new Text("Today's weather in ");
         todaysWeather.setFont(titleFont);
-        todaysWeather.setStroke(Color.GREEN);
+        todaysWeather.setStroke(Color.BLACK);
         todaysWeather.setFill(Color.BLACK);
         todaysWeather.setStrokeWidth(1.3);
         // Shadow effects
         DropShadow shadow = new DropShadow();
-        shadow.setOffsetY(-3.0);
+        shadow.setOffsetY(1.0);
         // Extra text effect
         todaysWeather.setEffect(shadow);
         // Change label looks
@@ -207,45 +218,79 @@ public class WeatherApp extends Application {
         topBoxTitle.setGraphic(todaysWeather);
 
         // City name and its graphics
-        locFont = Font.loadFont(
-                "file:///C:/Opiskelu/Prog3_project/group3163/WeatherApp/src/main/java/custom_fonts/revorioum/Revo.ttf",
-                50);
+        locFont = Font.font(def_font.getFamily(), FontWeight.BOLD, 30);
 
         city_locText = new Text(city_loc);
         city_locText.setFont(locFont);
-        city_locText.setStroke(Color.DARKGREEN);
+        city_locText.setStroke(Color.BLACK);
         city_locText.setFill(Color.BLACK);
         city_locText.setStrokeWidth(1.3);
         // Shadow effects
-        shadow.setOffsetY(5.0);
+        shadow.setOffsetY(1.0);
         // Extra text effect
         city_locText.setEffect(shadow);
 
         // This label will have the location name
         locLabel = new Label();
         locLabel.setMinWidth(80);
+        locLabel.setPadding(new Insets(5, 0, 0, 0));
         locLabel.setTextFill(Color.BLACK);
         locLabel.setGraphic(city_locText);
 
         // Creating a label for weather description
-        desc_font = Font.loadFont("file:///C:/Opiskelu/Prog3_project/group3163/WeatherApp/src/main/java/custom_fonts/Noto_Sans_SC/NotoSansSC-VariableFont_wght.ttf", 20);
-        desc_font = Font.font(desc_font.getFamily(), FontWeight.BOLD, desc_font.getSize());
+        descFont = Font.font(def_font.getFamily(), FontWeight.NORMAL, 30);
 
         Label descriptionLabel = new Label();
         descriptionLabel.setMinHeight(30);
         descriptionLabel.setTextFill(Color.BLACK);
+        descriptionLabel.setPadding(new Insets(0, 0, 10, 0));
 
         descriptionText = new Text(description);
         descriptionText.setFill(Color.BLACK);
         descriptionText.setStrokeWidth(2);
-        descriptionText.setFont(desc_font);
+        descriptionText.setFont(descFont);
+
         descriptionLabel.setGraphic(descriptionText);
 
         // Location text is stored here
         locationBox.getChildren().addAll(topBoxTitle, locLabel);
 
+        // Creating horizontal box for weather image and temperature
+        HBox symbolBox = new HBox();
+        symbolBox.setPrefHeight(120);
+        symbolBox.setStyle("-fx-background-color: #327aed;");
+
+        // Creating a weather status indicator gif
+        weatherImage = new ImageView();
+        weatherImage.setFitHeight(125);
+        weatherImage.setFitWidth(125);
+
+        // Placeholder image
+        CurrentWeatherImage = new Image(
+                "C:/Opiskelu/Prog3_project/group3163/WeatherApp/src/main/java/weather_types/placeholder.gif");
+
+        weatherImage.setImage(CurrentWeatherImage);
+
+        // Creating label for the temperature
+        temperLabel = new Label();
+        temperLabel.setMinHeight(50);
+        temperLabel.setTextFill(Color.BLACK);
+        temperLabel.setPadding(new Insets(10,10,10,10));
+
+        temperText = new Text();
+        temperText.setText(temperature);
+        temperText.setFill(Color.BLACK);
+        temperText.setStroke(Color.BLACK);
+        temperText.setStrokeWidth(3);
+        temperText.setFont(Font.font(def_font.getFamily(), 50));
+
+        temperLabel.setGraphic(temperText);
+
+        symbolBox.getChildren().addAll(weatherImage, temperLabel);
+
+
         // Add seperate boxes under each other to the weatherDataBox
-        weatherDataBox.getChildren().addAll(locationBox, descriptionLabel);
+        weatherDataBox.getChildren().addAll(locationBox, descriptionLabel, symbolBox);
         // Add the vertical box to the first big box that display's today's weather
         todayBox.getChildren().addAll(weatherDataBox);
 
@@ -331,14 +376,6 @@ public class WeatherApp extends Application {
         return hourColumn;
     }
 
-    private VBox getWeatherBox() {
-        VBox WeatherBox = new VBox();
-        WeatherBox.setPrefHeight(300);
-        WeatherBox.setStyle("-fx-background-color: #b1c2d4;");
-
-        return WeatherBox;
-    }
-
     private String getWeatherData(String city, String apikey, String timespan) throws IOException {
         String apiUrl;
         if (timespan == "hourly") {
@@ -378,6 +415,8 @@ public class WeatherApp extends Application {
 
         // If current weather:
         CurrentWeatherData todaysWeatherData = gson.fromJson(response, CurrentWeatherData.class);
+        // Update searched city's name
+        city_loc = todaysWeatherData.getName();
 
         // TODO: Else IF Hourly weather:
 
@@ -395,7 +434,8 @@ public class WeatherApp extends Application {
         // Test print
 
         String weatherTest = new String("Weather in " + todaysWeatherData.getName() + " "
-                + todaysWeatherData.getWeather().get(0).getDescription()
+                + todaysWeatherData.getWeather().get(0).getDescription() + " " +
+                todaysWeatherData.getWeather().get(0).getMain() + " "
                 + " " + String.format("%.2f", todaysWeatherData.getMain().getTemp()));
 
         System.out
@@ -408,18 +448,64 @@ public class WeatherApp extends Application {
     // Update location label
     private void updateLocLabel() {
         city_locText.setFont(locFont);
-        city_locText.setText(city_loc.toUpperCase());
+        city_locText.setText(city_loc);
     }
 
     // Update description label
     private void updateDescriptionLabel() {
         CurrentWeatherData todaysData = current_history.get(city_loc);
 
-            if (todaysData != null) {
+        if (todaysData != null) {
             {
-                description = todaysData.getWeather().get(0).getDescription();
-                descriptionText.setText(description);
+                String rawString = todaysData.getWeather().get(0).getDescription();
+
+                if (!lang.equals("zh_cn") && !lang.equals("vi")) { // Only format if allowed
+                    descriptionText.setText(rawString.substring(0, 1).toUpperCase() + rawString.substring(1) + ".");
+                }
+
+                else{descriptionText.setText(rawString);
+
+                }
             }
+        }
+    }
+
+    // Update temperature
+    void updateTemperText(){
+        CurrentWeatherData todaysData = current_history.get(city_loc);
+
+        if(todaysData != null){
+            Double temperatureDouble = todaysData.getMain().getTemp();
+
+            switch(unit){
+                case "metric":
+                temperature = String.format("%.1f", temperatureDouble) + " °C";
+
+                break;
+           
+                case "imperial":
+                temperature = String.format("%.1f", temperatureDouble) + " °F";
+
+                break;
+            }
+
+            temperText.setText(temperature);
+
+        }
+    }
+
+
+    // This updates the gif of current weather
+    private void updateWeatherImage() {
+        CurrentWeatherData todaysData = current_history.get(city_loc);
+
+        if (todaysData != null) {
+            String weatherStatus = todaysData.getWeather().get(0).getIcon();
+            String imagePath = "/weather_types/" + weatherStatus + ".gif";
+
+            CurrentWeatherImage = new Image(getClass().getResourceAsStream(imagePath));
+            weatherImage.setImage(CurrentWeatherImage);
+
         }
     }
 

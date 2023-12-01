@@ -19,6 +19,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -30,42 +31,44 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.Gson;
 
-// This version is being maintained by Hans
+// This version is being maintained by Abu
 // Latest update: HourlyWeatherData.java
 
 /**
  * JavaFX Sisu
  */
 public class WeatherApp extends Application {
-    
+
     String unit = "metric";
     String lang = "en";
 
     // Container for current city weather data
     Map<String, CurrentWeatherData> current_history = new HashMap<>();
     Map<String, HourlyWeatherData> hourly_history = new HashMap<>();
-    //Map<String, DailyWeatherData> daily_history = new HashMap<>();
+    // Map<String, DailyWeatherData> daily_history = new HashMap<>();
 
     String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
     // String api_key_Hans = "83d2b0a2d2140939c7f59d054de6a413";
-    
 
     // This displays location name
     private Label locLabel;
     private String city_loc;
+    private String description;
     private Font titleFont;
     private Font locFont;
+    private Font desc_font;
     private Text city_locText;
+    private Text descriptionText;
 
     @Override
     public void start(Stage stage) {
 
-        
         // Creating a new BorderPane.
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(10, 10, 10, 10));
@@ -94,7 +97,7 @@ public class WeatherApp extends Application {
         VBox centerHBox = new VBox(10);
 
         // Adding two VBox to the HBox.
-        centerHBox.getChildren().addAll(getTopButtonBox(), getTopHBox(),
+        centerHBox.getChildren().addAll(getTopButtonBox(), getTodayBox(),
                 getMiddleBox(), getBottomScrollPane());
 
         return centerHBox;
@@ -129,15 +132,15 @@ public class WeatherApp extends Application {
         locButton.setOnAction(event -> {
             city_loc = locField.getText();
 
-            //API call for weekly/current weather happens here
+            // API call for weekly/current weather happens here
             try {
-                getWeatherData(city_loc.toLowerCase(), api_key_Abu, "current");
+                getWeatherData(city_loc, api_key_Abu, "current");
+                updateLocLabel();
+                updateDescriptionLabel();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-
-            updateLocLabel(); // Updates location name
 
         });
 
@@ -155,18 +158,30 @@ public class WeatherApp extends Application {
         HBox.setMargin(locField, new Insets(0, 10, 0, 0));
         HBox.setMargin(spacer, new Insets(0, 280, 0, 0));
         HBox.setMargin(unitButton, new Insets(0, 10, 0, 5));
-        HBox.setMargin(FavButton, new Insets(0,10,0,10));
+        HBox.setMargin(FavButton, new Insets(0, 10, 0, 10));
 
         topHBox.getChildren().addAll(unitButton, locField, locButton, FavButton, langButton());
 
         return topHBox;
     }
 
-    private HBox getTopHBox() {
-        // Creating a HBox for the left side.
-        HBox leftHBox = new HBox();
-        leftHBox.setPrefHeight(330);
-        leftHBox.setStyle("-fx-background-color: #327aed;");
+    private HBox getTodayBox() {
+
+        // Creating a HBox for today's weather.
+        HBox todayBox = new HBox();
+        todayBox.setPrefHeight(350);
+        todayBox.setStyle("-fx-background-color: #327aed;");
+
+        // Creating vertical box that will store location, temperature, weather
+        // description, images etc in seperate horizontal boxes
+        VBox weatherDataBox = new VBox();
+        weatherDataBox.setPrefHeight(330);
+        weatherDataBox.setPadding(new Insets(10, 10, 10, 10));
+        weatherDataBox.setStyle("-fx-background-color: #327aed;");
+
+        // Creating box for today's weather text
+        HBox locationBox = new HBox();
+        locationBox.setPrefHeight(15);
 
         // Creating custom text font
         titleFont = Font.loadFont(
@@ -196,7 +211,6 @@ public class WeatherApp extends Application {
                 "file:///C:/Opiskelu/Prog3_project/group3163/WeatherApp/src/main/java/custom_fonts/revorioum/Revo.ttf",
                 50);
 
-        String city_loc = "";
         city_locText = new Text(city_loc);
         city_locText.setFont(locFont);
         city_locText.setStroke(Color.DARKGREEN);
@@ -211,13 +225,31 @@ public class WeatherApp extends Application {
         locLabel = new Label();
         locLabel.setMinWidth(80);
         locLabel.setTextFill(Color.BLACK);
-
         locLabel.setGraphic(city_locText);
-        ;
 
-        leftHBox.getChildren().addAll(topBoxTitle, locLabel);
+        // Creating a label for weather description
+        desc_font = Font.loadFont("file:///C:/Opiskelu/Prog3_project/group3163/WeatherApp/src/main/java/custom_fonts/Noto_Sans_SC/NotoSansSC-VariableFont_wght.ttf", 20);
+        desc_font = Font.font(desc_font.getFamily(), FontWeight.BOLD, desc_font.getSize());
 
-        return leftHBox;
+        Label descriptionLabel = new Label();
+        descriptionLabel.setMinHeight(30);
+        descriptionLabel.setTextFill(Color.BLACK);
+
+        descriptionText = new Text(description);
+        descriptionText.setFill(Color.BLACK);
+        descriptionText.setStrokeWidth(2);
+        descriptionText.setFont(desc_font);
+        descriptionLabel.setGraphic(descriptionText);
+
+        // Location text is stored here
+        locationBox.getChildren().addAll(topBoxTitle, locLabel);
+
+        // Add seperate boxes under each other to the weatherDataBox
+        weatherDataBox.getChildren().addAll(locationBox, descriptionLabel);
+        // Add the vertical box to the first big box that display's today's weather
+        todayBox.getChildren().addAll(weatherDataBox);
+
+        return todayBox;
     }
 
     private ScrollPane getMiddleBox() {
@@ -310,15 +342,15 @@ public class WeatherApp extends Application {
     private String getWeatherData(String city, String apikey, String timespan) throws IOException {
         String apiUrl;
         if (timespan == "hourly") {
-            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/hourly?q=" + city + "&appid=" + apikey + "&units=" + unit + "&lang=" + lang;
+            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/hourly?q=" + city + "&appid=" + apikey
+                    + "&units=" + unit + "&lang=" + lang;
+        } else if (timespan == "daily") {
+            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?q=" + city + "&appid=" + apikey + "&units="
+                    + unit + "&lang=" + lang;
+        } else {
+            apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apikey + "&units=" + unit
+                    + "&lang=" + lang;
         }
-        else if (timespan == "daily") {
-            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?q="+ city + "&appid=" + apikey + "&units=" + unit + "&lang=" + lang;
-        }
-        else {
-            apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apikey + "&units=" + unit + "&lang=" + lang;
-        }
-
 
         URL url = new URL(apiUrl);
 
@@ -349,20 +381,25 @@ public class WeatherApp extends Application {
 
         // TODO: Else IF Hourly weather:
 
-            // HourlyWeatherData weatherData = gson.fromJson(response, HourlyWeatherData.class);
+        // HourlyWeatherData weatherData = gson.fromJson(response,
+        // HourlyWeatherData.class);
 
         // TODO: Else daily weather:
 
-            // DailyWeatherData weatherData = gson.fromJson(response, DailyWeatherData.class);
+        // DailyWeatherData weatherData = gson.fromJson(response,
+        // DailyWeatherData.class);
 
         // Saving generated weatherData object to a container for later accessing
         current_history.put(todaysWeatherData.getName(), todaysWeatherData);
 
         // Test print
 
+        String weatherTest = new String("Weather in " + todaysWeatherData.getName() + " "
+                + todaysWeatherData.getWeather().get(0).getDescription()
+                + " " + String.format("%.2f", todaysWeatherData.getMain().getTemp()));
+
         System.out
-                .println("Weather in " + todaysWeatherData.getName() + " " + todaysWeatherData.getWeather().get(0).getDescription()
-                        + " " + String.format("%.2f", todaysWeatherData.getMain().getTemp()));
+                .println(weatherTest);
 
         return response;
 
@@ -371,7 +408,19 @@ public class WeatherApp extends Application {
     // Update location label
     private void updateLocLabel() {
         city_locText.setFont(locFont);
-        city_locText.setText(city_loc);
+        city_locText.setText(city_loc.toUpperCase());
+    }
+
+    // Update description label
+    private void updateDescriptionLabel() {
+        CurrentWeatherData todaysData = current_history.get(city_loc);
+
+            if (todaysData != null) {
+            {
+                description = todaysData.getWeather().get(0).getDescription();
+                descriptionText.setText(description);
+            }
+        }
     }
 
     private Button getQuitButton() {
@@ -407,27 +456,24 @@ public class WeatherApp extends Application {
 
     }
 
-    private ComboBox<String> langButton(){
-        
+    private ComboBox<String> langButton() {
+
         ComboBox<String> langBox = new ComboBox<>();
         // Add options to the ComboBox
-        langBox.getItems().addAll("en", "fi", "fr", "tr", "az", "zh_cn", "vi");
+        langBox.getItems().addAll("en", "fi", "fr", "tr", "az", "zh_cn", "vi", "de", "da");
         langBox.setValue("en");
 
         lang = langBox.getValue();
 
         langBox.setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(ActionEvent event){
+            public void handle(ActionEvent event) {
                 lang = langBox.getValue();
-                
+
             }
         });
 
         return langBox;
     }
-
-
-    
 
 }

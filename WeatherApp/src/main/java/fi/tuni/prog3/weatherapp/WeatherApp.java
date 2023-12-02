@@ -43,9 +43,6 @@ import com.google.gson.Gson;
 
 import fi.tuni.prog3.weatherapp.HourlyWeatherData.Main;
 
-// This version is being maintained by Abu
-// Latest update: HourlyWeatherData.java
-
 /**
  * JavaFX Sisu
  */
@@ -62,7 +59,8 @@ public class WeatherApp extends Application {
     List<String> favourites = new ArrayList<String>();
 
     String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
-    // String api_key_Hans = "83d2b0a2d2140939c7f59d054de6a413";
+
+    private VBox bottomVBox = new VBox();
 
     // This displays location name
     private Label locLabel;
@@ -167,6 +165,9 @@ public class WeatherApp extends Application {
                 updateFeelsText();
                 updateWindSpeed();
                 isFavourite();
+
+                // Update hourly columns
+                updateHourlyColumns();
 
             } catch (IOException e) {
                 // TODO Auto-generated catch block
@@ -394,8 +395,6 @@ public class WeatherApp extends Application {
     }
 
     public ScrollPane getBottomScrollPane() {
-        // Creating a VBox for the bottom side.
-        HBox bottomVBox = new HBox();
         bottomVBox.setPrefHeight(200);
         bottomVBox.setStyle("-fx-background-color: white;");
 
@@ -409,7 +408,7 @@ public class WeatherApp extends Application {
         if (city_loc != null) {
             // Create a column for each hour
             for (String hour : hours) {
-                VBox hourColumn = createHourColumn(hour);
+                VBox hourColumn = createHourColumn(hour, city_loc);
                 bottomVBox.getChildren().add(hourColumn);
             }
         }
@@ -422,7 +421,7 @@ public class WeatherApp extends Application {
         return scrollPane;
     }
 
-    private VBox createHourColumn(String hour) {
+    private VBox createHourColumn(String hour, String city) {
         VBox hourColumn = new VBox();
         hourColumn.setAlignment(Pos.CENTER);
 
@@ -431,7 +430,7 @@ public class WeatherApp extends Application {
         try {
     
             // Call the getWeatherData function to retrieve hourly weather data
-            String response = getWeatherData(city_loc, api_key_Abu, "hourly");
+            String response = getWeatherData(city, api_key_Abu, "hourly");
     
             // Parse the response and handle the data as needed
             Gson gson = new Gson();
@@ -480,6 +479,22 @@ public class WeatherApp extends Application {
         return hourColumn;
     }
 
+    private void updateHourlyColumns() {
+        // Clear existing columns
+        bottomVBox.getChildren().clear();
+
+        String[] hours = { "00", "01", "02", "03", "04", "05", "06", "07",
+        "08", "09", "10", "11", "12", "13", "14", "15", "16", "17",
+        "18", "19", "20", "21", "22", "23", "24" };
+
+        // Create columns for each hour
+        for (String hour : hours) {
+            VBox hourColumn = createHourColumn(hour, city_loc);
+            bottomVBox.getChildren().add(hourColumn);
+        }
+
+    }
+
     private String getWeatherData(String city, String apikey, String timespan) throws IOException {
         String apiUrl;
         if (timespan == "hourly") {
@@ -520,7 +535,10 @@ public class WeatherApp extends Application {
         if (timespan.equals("hourly")) {
             // If hourly weather:
             HourlyWeatherData hourlyWeatherData = gson.fromJson(response, HourlyWeatherData.class);
-        
+            
+            // Update searched city's name
+            city_loc = hourlyWeatherData.getCity();
+
             // Accessing the first Forecast object in the list
             HourlyWeatherData.Forecast firstForecast = hourlyWeatherData.getList().get(0);
         

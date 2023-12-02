@@ -421,7 +421,6 @@ public class WeatherApp extends Application {
             // Parse the response and handle the data as needed
             Gson gson = new Gson();
             hourlyWeatherData = gson.fromJson(response, HourlyWeatherData.class);
-    
 
         } catch (IOException e) {
             e.printStackTrace(); // Handle the exception according to your needs
@@ -429,8 +428,6 @@ public class WeatherApp extends Application {
         }
         
         // TODO: Get actual weather data
-
-        String weatherIcon = "ERROR"; // Weather icon representing state of weather
         String temperature = "ERROR";
         String windDirection = "ERROR"; // Arrow representing direction of wind
         String humidity = "ERROR";
@@ -452,7 +449,17 @@ public class WeatherApp extends Application {
             unit_type = "°F";
         }
 
+        // Placeholder
+        Image currentHourWeatherImage = new Image(getClass().getResourceAsStream("/weather_types/placeholder.gif"));
+        
+        // Set the weather data to variables
         if (hourlyWeatherData != null) {
+
+            String weatherStatus = currentHourWeatherData.getWeather().get(0).getIcon();
+            String imagePath = "/weather_types/" + weatherStatus + ".gif";
+
+            currentHourWeatherImage = new Image(getClass().getResourceAsStream(imagePath));
+
             double tempValue = currentHourWeatherData.getMain().getTemp();
             int roundedTemp = (int) Math.round(tempValue);
             
@@ -462,15 +469,19 @@ public class WeatherApp extends Application {
             humidity = String.format("%d", humidityValue);
         }
 
-        // Labels to display weather data
+        // Create an ImageView with the weather status icon
+        ImageView weatherIconView = new ImageView(currentHourWeatherImage);
+        weatherIconView.setFitHeight(5);  // Set the height as needed
+        weatherIconView.setFitWidth(5);   // Set the width as needed
+
+        // Elements to display weather data
         Label hourLabel = new Label(hour);
-        Label iconLabel = new Label(weatherIcon);
         Label tempLabel = new Label(temperature);
         Label windLabel = new Label(windDirection);
         Label humidityLabel = new Label(humidity);
 
         // Add labels to VBox
-        hourColumn.getChildren().addAll(hourLabel, iconLabel, tempLabel, windLabel, humidityLabel);
+        hourColumn.getChildren().addAll(hourLabel, weatherIconView, tempLabel, windLabel, humidityLabel);
 
         return hourColumn;
     }

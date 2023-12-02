@@ -431,7 +431,8 @@ public class WeatherApp extends Application {
     
             // Call the getWeatherData function to retrieve hourly weather data
             String response = getWeatherData(city, api_key_Abu, "hourly");
-    
+            System.out.println("Response: " + response);
+            
             // Parse the response and handle the data as needed
             Gson gson = new Gson();
             hourlyWeatherData = gson.fromJson(response, HourlyWeatherData.class);
@@ -441,10 +442,10 @@ public class WeatherApp extends Application {
     
             // Test print for hourly weather
             String weatherTest = new String("Hourly Weather in " + hourlyWeatherData.getCity() + " "
-                    + firstForecast.getWeather().get(0).getDescription() + " "
-                    + firstForecast.getWeather().get(0).getMain() + " "
-                    + " " + String.format("%.2f", firstForecast.getMain().getTemp()));
-    
+                    + hourlyWeatherData.getList().get(0).getWeather().get(0).getDescription() + " "
+                    + hourlyWeatherData.getList().get(0).getWeather().get(0).getMain() + " "
+                    + " " + String.format("%.2f", hourlyWeatherData.getList().get(0).getMain().getTemp()));
+
             System.out.println(weatherTest);
     
         } catch (IOException e) {
@@ -533,6 +534,8 @@ public class WeatherApp extends Application {
         Gson gson = new Gson();
 
         if (timespan.equals("hourly")) {
+            // Print the raw JSON response for trouble shooting
+            System.out.println("Raw JSON Response: " + response);
             // If hourly weather:
             HourlyWeatherData hourlyWeatherData = gson.fromJson(response, HourlyWeatherData.class);
             
@@ -579,11 +582,6 @@ public class WeatherApp extends Application {
         return response;
 
     }
-
-
-
-
-
 
     // Check whether location is in favourites
     private boolean isFavourite(){

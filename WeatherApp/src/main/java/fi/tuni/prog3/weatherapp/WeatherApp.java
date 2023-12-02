@@ -439,7 +439,7 @@ public class WeatherApp extends Application {
         
         // Get current hour
         String dateTime = currentHourWeatherData.getDt_txt();
-        String[] dateTimeParts = dateTime.split("");
+        String[] dateTimeParts = dateTime.split(" ");
         String timePart = dateTimeParts[1];
         String[] timeParts = timePart.split(":");
         String hour = timeParts[0];

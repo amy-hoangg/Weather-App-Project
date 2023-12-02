@@ -2,209 +2,47 @@ package fi.tuni.prog3.weatherapp;
 
 import java.util.List;
 
+import com.google.gson.Gson;
+
 public class HourlyWeatherData {
-    public String city;
-    public List<Forecast> list;
+    private long dt;
+    private double temp;
+    private double feels_like;
+    private int humidity;
+    private City city;
 
-    // Getter and Setter methods for each field
+    // Nested Coord class
+    public static class Coord {
+        private double lat;
+        private double lon;
 
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public List<Forecast> getList() {
-        return list;
-    }
-
-    public void setList(List<Forecast> list) {
-        this.list = list;
-    }
-
-    // Nested class for Forecast
-    public static class Forecast {
-        public long dt;
-        public Main main;
-        public List<Weather> weather;
-        public Clouds clouds;
-        public Wind wind;
-        public int visibility;
-        public double pop;
-        public Sys sys;
-        public String dt_txt;
-
-        // Getter and Setter methods for Forecast fields
-
-        public long getDt() {
-            return dt;
+        public double getLat() {
+            return lat;
         }
 
-        public void setDt(long dt) {
-            this.dt = dt;
+        public void setLat(double lat) {
+            this.lat = lat;
         }
 
-        public Main getMain() {
-            return main;
+        public double getLon() {
+            return lon;
         }
 
-        public void setMain(Main main) {
-            this.main = main;
-        }
-
-        public List<Weather> getWeather() {
-            return weather;
-        }
-
-        public void setWeather(List<Weather> weather) {
-            this.weather = weather;
-        }
-
-        public Clouds getClouds() {
-            return clouds;
-        }
-
-        public void setClouds(Clouds clouds) {
-            this.clouds = clouds;
-        }
-
-        public Wind getWind() {
-            return wind;
-        }
-
-        public void setWind(Wind wind) {
-            this.wind = wind;
-        }
-
-        public int getVisibility() {
-            return visibility;
-        }
-
-        public void setVisibility(int visibility) {
-            this.visibility = visibility;
-        }
-
-        public double getPop() {
-            return pop;
-        }
-
-        public void setPop(double pop) {
-            this.pop = pop;
-        }
-
-        public Sys getSys() {
-            return sys;
-        }
-
-        public void setSys(Sys sys) {
-            this.sys = sys;
-        }
-
-        public String getDt_txt() {
-            return dt_txt;
-        }
-
-        public void setDt_txt(String dt_txt) {
-            this.dt_txt = dt_txt;
+        public void setLon(double lon) {
+            this.lon = lon;
         }
     }
 
-    // Nested classes for Forecast details
-    public static class Main {
-        public double temp;
-        public double feels_like;
-        public double temp_min;
-        public double temp_max;
-        public int pressure;
-        public int sea_level;
-        public int grnd_level;
-        public int humidity;
-        public double temp_kf;
-
-        // Getter and Setter methods for Main fields
-
-        public double getTemp() {
-            return temp;
-        }
-
-        public void setTemp(double temp) {
-            this.temp = temp;
-        }
-
-        public double getFeels_like() {
-            return feels_like;
-        }
-
-        public void setFeels_like(double feels_like) {
-            this.feels_like = feels_like;
-        }
-
-        public double getTemp_min() {
-            return temp_min;
-        }
-
-        public void setTemp_min(double temp_min) {
-            this.temp_min = temp_min;
-        }
-
-        public double getTemp_max() {
-            return temp_max;
-        }
-
-        public void setTemp_max(double temp_max) {
-            this.temp_max = temp_max;
-        }
-
-        public int getPressure() {
-            return pressure;
-        }
-
-        public void setPressure(int pressure) {
-            this.pressure = pressure;
-        }
-
-        public int getSea_level() {
-            return sea_level;
-        }
-
-        public void setSea_level(int sea_level) {
-            this.sea_level = sea_level;
-        }
-
-        public int getGrnd_level() {
-            return grnd_level;
-        }
-
-        public void setGrnd_level(int grnd_level) {
-            this.grnd_level = grnd_level;
-        }
-
-        public int getHumidity() {
-            return humidity;
-        }
-
-        public void setHumidity(int humidity) {
-            this.humidity = humidity;
-        }
-
-        public double getTemp_kf() {
-            return temp_kf;
-        }
-
-        public void setTemp_kf(double temp_kf) {
-            this.temp_kf = temp_kf;
-        }
-    }
-
-    public static class Weather {
-        public int id;
-        public String main;
-        public String description;
-        public String icon;
-
-        // Getter and Setter methods for Weather fields
+    // Nested City class
+    public static class City {
+        private int id;
+        private String name;
+        private Coord coord;
+        private String country;
+        private int population;
+        private int timezone;
+        private long sunrise;
+        private long sunset;
 
         public int getId() {
             return id;
@@ -214,93 +52,103 @@ public class HourlyWeatherData {
             this.id = id;
         }
 
-        public String getMain() {
-            return main;
+        public String getName() {
+            return name;
         }
 
-        public void setMain(String main) {
-            this.main = main;
+        public void setName(String name) {
+            this.name = name;
         }
 
-        public String getDescription() {
-            return description;
+        public Coord getCoord() {
+            return coord;
         }
 
-        public void setDescription(String description) {
-            this.description = description;
+        public void setCoord(Coord coord) {
+            this.coord = coord;
         }
 
-        public String getIcon() {
-            return icon;
+        public String getCountry() {
+            return country;
         }
 
-        public void setIcon(String icon) {
-            this.icon = icon;
-        }
-    }
-
-    public static class Clouds {
-        public int all;
-
-        // Getter and Setter methods for Clouds field
-
-        public int getAll() {
-            return all;
+        public void setCountry(String country) {
+            this.country = country;
         }
 
-        public void setAll(int all) {
-            this.all = all;
-        }
-    }
-
-    public static class Wind {
-        public double speed;
-        public int deg;
-        public double gust;
-
-        // Getter and Setter methods for Wind fields
-
-        public double getSpeed() {
-            return speed;
+        public int getPopulation() {
+            return population;
         }
 
-        public void setSpeed(double speed) {
-            this.speed = speed;
+        public void setPopulation(int population) {
+            this.population = population;
         }
 
-        public int getDeg() {
-            return deg;
+        public int getTimezone() {
+            return timezone;
         }
 
-        public void setDeg(int deg) {
-            this.deg = deg;
+        public void setTimezone(int timezone) {
+            this.timezone = timezone;
         }
 
-        public double getGust() {
-            return gust;
+        public long getSunrise() {
+            return sunrise;
         }
 
-        public void setGust(double gust) {
-            this.gust = gust;
+        public void setSunrise(long sunrise) {
+            this.sunrise = sunrise;
+        }
+
+        public long getSunset() {
+            return sunset;
+        }
+
+        public void setSunset(long sunset) {
+            this.sunset = sunset;
         }
     }
 
-    public static class Sys {
-        public String pod;
-
-        // Getter and Setter methods for Sys field
-
-        public String getPod() {
-            return pod;
-        }
-
-        public void setPod(String pod) {
-            this.pod = pod;
-        }
+    // Getters and setters for HourlyWeatherData
+    public long getDt() {
+        return dt;
     }
 
-    public Main getMain() {
-        return null;
+    public void setDt(long dt) {
+        this.dt = dt;
+    }
+
+    public double getTemp() {
+        return temp;
+    }
+
+    public void setTemp(double temp) {
+        this.temp = temp;
+    }
+
+    public double getFeels_like() {
+        return feels_like;
+    }
+
+    public void setFeels_like(double feels_like) {
+        this.feels_like = feels_like;
+    }
+
+    public int getHumidity() {
+        return humidity;
+    }
+
+    public void setHumidity(int humidity) {
+        this.humidity = humidity;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
     }
 }
+
 

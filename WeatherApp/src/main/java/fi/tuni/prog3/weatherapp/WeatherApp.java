@@ -61,9 +61,13 @@ public class WeatherApp extends Application {
     // This displays location name
     private Label locLabel;
     private Label temperLabel;
+    private Label feelsLabel;
+    private Label windLabel;
     private String city_loc;
     private String description;
     private String temperature;
+    private String feelsLike;
+    private String windSpeed;
     private Font titleFont;
     private Font locFont;
     private Font descFont;
@@ -71,6 +75,8 @@ public class WeatherApp extends Application {
     private Text city_locText;
     private Text descriptionText;
     private Text temperText;
+    private Text feelsText;
+    private Text windText;
     private ImageView weatherImage;
     private Image CurrentWeatherImage;
 
@@ -150,6 +156,8 @@ public class WeatherApp extends Application {
                 updateDescriptionLabel();
                 updateWeatherImage();
                 updateTemperText();
+                updateFeelsText();
+                updateWindSpeed();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -206,7 +214,7 @@ public class WeatherApp extends Application {
         todaysWeather.setFont(titleFont);
         todaysWeather.setStroke(Color.BLACK);
         todaysWeather.setFill(Color.BLACK);
-        todaysWeather.setStrokeWidth(1.3);
+        todaysWeather.setStrokeWidth(0.5);
         // Shadow effects
         DropShadow shadow = new DropShadow();
         shadow.setOffsetY(0.2);
@@ -224,9 +232,9 @@ public class WeatherApp extends Application {
         city_locText.setFont(locFont);
         city_locText.setStroke(Color.BLACK);
         city_locText.setFill(Color.BLACK);
-        city_locText.setStrokeWidth(1.3);
+        city_locText.setStrokeWidth(0.5);
         // Shadow effects
-        shadow.setOffsetY(0.2);
+        shadow.setOffsetY(0.0);
         // Extra text effect
         city_locText.setEffect(shadow);
 
@@ -279,12 +287,50 @@ public class WeatherApp extends Application {
         temperText.setText(temperature);
         temperText.setFill(Color.BLACK);
         temperText.setStroke(Color.BLACK);
-        temperText.setStrokeWidth(3);
+        temperText.setStrokeWidth(1);
         temperText.setFont(Font.font(def_font.getFamily(), 50));
 
         temperLabel.setGraphic(temperText);
 
-        symbolBox.getChildren().addAll(weatherImage, temperLabel);
+        // Creating label for feels like
+        feelsLabel = new Label();
+        feelsLabel.setMinHeight(50);
+        feelsLabel.setTextFill(Color.BLACK);
+        feelsLabel.setPadding(new Insets(10,10,10,10));
+
+        feelsText = new Text();
+        feelsText.setText(feelsLike);
+        feelsText.setFill(Color.BLACK);
+        feelsText.setStroke(Color.BLACK);
+        feelsText.setStrokeWidth(1);
+        feelsText.setFont(Font.font(def_font.getFamily(), 20));
+
+        feelsLabel.setGraphic(feelsText);
+
+        // Creating label for wind speed
+        windLabel = new Label();
+        windLabel.setMinHeight(50);
+        windLabel.setTextFill(Color.BLACK);
+        windLabel.setPadding(new Insets(10,10,10,10));
+
+        windText = new Text();
+        windText.setText(windSpeed);
+        windText.setFill(Color.BLACK);
+        windText.setStroke(Color.BLACK);
+        windText.setStrokeWidth(0);
+        windText.setFont(Font.font(def_font.getFamily(), 30));
+
+        windLabel.setGraphic(windText);
+
+        // Creating VBox for feels like and wind
+        VBox feelsAndWindBox = new VBox();
+        feelsAndWindBox.setPrefHeight(120);
+        feelsAndWindBox.setStyle("-fx-background-color: #FFFFFF;");
+
+        feelsAndWindBox.getChildren().addAll(feelsLabel, windLabel);
+
+
+        symbolBox.getChildren().addAll(weatherImage, temperLabel, feelsAndWindBox);
 
         // Add seperate boxes under each other to the weatherDataBox
         weatherDataBox.getChildren().addAll(locationBox, descriptionLabel, symbolBox);
@@ -502,6 +548,54 @@ public class WeatherApp extends Application {
 
             CurrentWeatherImage = new Image(getClass().getResourceAsStream(imagePath));
             weatherImage.setImage(CurrentWeatherImage);
+
+        }
+    }
+
+    // This updates the feels like- text
+    private void updateFeelsText(){
+        CurrentWeatherData todaysData = current_history.get(city_loc);
+
+        if (todaysData != null) {
+            Double feelsDouble = todaysData.getMain().getFeelsTemp();
+
+            switch (unit) {
+                case "metric":
+                    feelsLike = String.format("Truefeel %.1f", feelsDouble) + " °C";
+
+                    break;
+
+                case "imperial":
+                    feelsLike = String.format("Truefeel %.1f", feelsDouble) + " °F";
+
+                    break;
+            }
+
+            feelsText.setText(feelsLike);
+
+        }
+    }
+
+    // This updates wind speed
+    private void updateWindSpeed(){
+        CurrentWeatherData todaysData = current_history.get(city_loc);
+
+        if (todaysData != null) {
+            Double windDouble = todaysData.getWind().getSpeed();
+
+            switch (unit) {
+                case "metric":
+                    windSpeed = String.format("༄ %.1f", windDouble) + " kph";
+
+                    break;
+
+                case "imperial":
+                    windSpeed = String.format("༄ %.1f", windDouble) + " mph";
+
+                    break;
+            }
+
+            windText.setText(windSpeed);
 
         }
     }

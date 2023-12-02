@@ -192,6 +192,7 @@ public class CurrentWeatherData{
         public int humidity;
         public double temp_min;
         public double temp_max;
+        public double feels_like;
 
         // Getter and Setter methods...
         public double getTemp() {
@@ -232,6 +233,14 @@ public class CurrentWeatherData{
 
         public void setTemp_max(double temp_max) {
             this.temp_max = temp_max;
+        }
+
+        public void setFeelsTemp(double feelsTemp){
+            this.feels_like = feelsTemp;
+        }
+
+        public double getFeelsTemp(){
+            return feels_like;
         }
     }
 

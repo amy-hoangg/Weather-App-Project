@@ -3,86 +3,134 @@ package fi.tuni.prog3.weatherapp;
 import java.util.List;
 
 public class HourlyWeatherData {
-    public long dt;
-    public Main main;
-    public List<Weather> weather;
-    public Clouds clouds;
-    public Wind wind;
-    public Visibility visibility;
-    public Pop pop;
-    public Sys sys;
-    public String dt_txt;
+    public String cod;
+    public int message;
+    public int cnt;
+    public List<WeatherData> list;
+    public City city;
 
-    public long getDt() {
-        return dt;
+    public String getCod() {
+        return cod;
     }
 
-    public void setDt(long dt) {
-        this.dt = dt;
+    public void setCod(String cod) {
+        this.cod = cod;
     }
 
-    public Main getMain() {
-        return main;
+    public int getMessage() {
+        return message;
     }
 
-    public void setMain(Main main) {
-        this.main = main;
+    public void setMessage(int message) {
+        this.message = message;
     }
 
-    public List<Weather> getWeather() {
-        return weather;
+    public int getCnt() {
+        return cnt;
     }
 
-    public void setWeather(List<Weather> weather) {
-        this.weather = weather;
+    public void setCnt(int cnt) {
+        this.cnt = cnt;
     }
 
-    public Clouds getClouds() {
-        return clouds;
+    public List<WeatherData> getList() {
+        return list;
     }
 
-    public void setClouds(Clouds clouds) {
-        this.clouds = clouds;
+    public void setList(List<WeatherData> list) {
+        this.list = list;
     }
 
-    public Wind getWind() {
-        return wind;
+    public City getCity() {
+        return city;
     }
 
-    public void setWind(Wind wind) {
-        this.wind = wind;
+    public void setCity(City city) {
+        this.city = city;
     }
 
-    public Visibility getVisibility() {
-        return visibility;
-    }
+    public static class WeatherData {
+        public long dt;
+        public Main main;
+        public List<Weather> weather;
+        public Clouds clouds;
+        public Wind wind;
+        public int visibility;
+        public double pop;
+        public Sys sys;
+        public String dt_txt;
 
-    public void setVisibility(Visibility visibility) {
-        this.visibility = visibility;
-    }
+        public long getDt() {
+            return dt;
+        }
 
-    public Pop getPop() {
-        return pop;
-    }
+        public void setDt(long dt) {
+            this.dt = dt;
+        }
 
-    public void setPop(Pop pop) {
-        this.pop = pop;
-    }
+        public Main getMain() {
+            return main;
+        }
 
-    public Sys getSys() {
-        return sys;
-    }
+        public void setMain(Main main) {
+            this.main = main;
+        }
 
-    public void setSys(Sys sys) {
-        this.sys = sys;
-    }
+        public List<Weather> getWeather() {
+            return weather;
+        }
 
-    public String getDt_txt() {
-        return dt_txt;
-    }
+        public void setWeather(List<Weather> weather) {
+            this.weather = weather;
+        }
 
-    public void setDt_txt(String dt_txt) {
-        this.dt_txt = dt_txt;
+        public Clouds getClouds() {
+            return clouds;
+        }
+
+        public void setClouds(Clouds clouds) {
+            this.clouds = clouds;
+        }
+
+        public Wind getWind() {
+            return wind;
+        }
+
+        public void setWind(Wind wind) {
+            this.wind = wind;
+        }
+
+        public int getVisibility() {
+            return visibility;
+        }
+
+        public void setVisibility(int visibility) {
+            this.visibility = visibility;
+        }
+
+        public double getPop() {
+            return pop;
+        }
+
+        public void setPop(double pop) {
+            this.pop = pop;
+        }
+
+        public Sys getSys() {
+            return sys;
+        }
+
+        public void setSys(Sys sys) {
+            this.sys = sys;
+        }
+
+        public String getDt_txt() {
+            return dt_txt;
+        }
+
+        public void setDt_txt(String dt_txt) {
+            this.dt_txt = dt_txt;
+        }
     }
 
     public static class Main {
@@ -209,7 +257,7 @@ public class HourlyWeatherData {
     }
 
     public static class Clouds {
-        private int all;
+        public int all;
 
         public int getAll() {
             return all;
@@ -221,9 +269,9 @@ public class HourlyWeatherData {
     }
 
     public static class Wind {
-        private double speed;
-        private int deg;
-        private double gust;
+        public double speed;
+        public int deg;
+        public double gust;
 
         public double getSpeed() {
             return speed;
@@ -250,32 +298,8 @@ public class HourlyWeatherData {
         }
     }
 
-    public static class Visibility {
-        private int visibility;
-
-        public int getVisibility() {
-            return visibility;
-        }
-
-        public void setVisibility(int visibility) {
-            this.visibility = visibility;
-        }
-    }
-
-    public static class Pop {
-        private int pop;
-
-        public int getPop() {
-            return pop;
-        }
-
-        public void setPop(int pop) {
-            this.pop = pop;
-        }
-    }
-
     public static class Sys {
-        private String pod;
+        public String pod;
 
         public String getPod() {
             return pod;
@@ -285,7 +309,104 @@ public class HourlyWeatherData {
             this.pod = pod;
         }
     }
+
+    public static class City {
+        public int id;
+        public String name;
+        public Coord coord;
+        public String country;
+        public int population;
+        public int timezone;
+        public long sunrise;
+        public long sunset;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Coord getCoord() {
+            return coord;
+        }
+
+        public void setCoord(Coord coord) {
+            this.coord = coord;
+        }
+
+        public String getCountry() {
+            return country;
+        }
+
+        public void setCountry(String country) {
+            this.country = country;
+        }
+
+        public int getPopulation() {
+            return population;
+        }
+
+        public void setPopulation(int population) {
+            this.population = population;
+        }
+
+        public int getTimezone() {
+            return timezone;
+        }
+
+        public void setTimezone(int timezone) {
+            this.timezone = timezone;
+        }
+
+        public long getSunrise() {
+            return sunrise;
+        }
+
+        public void setSunrise(long sunrise) {
+            this.sunrise = sunrise;
+        }
+
+        public long getSunset() {
+            return sunset;
+        }
+
+        public void setSunset(long sunset) {
+            this.sunset = sunset;
+        }
+    }
+
+    public static class Coord {
+        public double lat;
+        public double lon;
+
+        public double getLat() {
+            return lat;
+        }
+
+        public void setLat(double lat) {
+            this.lat = lat;
+        }
+
+        public double getLon() {
+            return lon;
+        }
+
+        public void setLon(double lon) {
+            this.lon = lon;
+        }
+    }
 }
+
 
 
 

@@ -399,18 +399,6 @@ public class WeatherApp extends Application {
         bottomHBox.setSpacing(10);
         bottomHBox.setAlignment(Pos.CENTER);
 
-        String[] hours = { "00", "01", "02", "03", "04", "05", "06", "07",
-                "08", "09", "10", "11", "12", "13", "14", "15", "16", "17",
-                "18", "19", "20", "21", "22", "23", "24" };
-
-        if (city_loc != null) {
-            // Create a column for each hour
-            for (String hour : hours) {
-                VBox hourColumn = createHourColumn(hour, city_loc);
-                bottomHBox.getChildren().add(hourColumn);
-            }
-        }
-
         // Add scrollbar to bottom to scroll through hours
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(bottomHBox);
@@ -419,7 +407,7 @@ public class WeatherApp extends Application {
         return scrollPane;
     }
 
-    private VBox createHourColumn(String hour, String city) {
+    private VBox createHourColumn(int index, String city) {
         VBox hourColumn = new VBox();
         hourColumn.setAlignment(Pos.CENTER);
 
@@ -429,7 +417,6 @@ public class WeatherApp extends Application {
     
             // Call the getWeatherData function to retrieve hourly weather data
             String response = getWeatherData(city, api_key_Abu, "hourly");
-            System.out.println("Response: " + response);
             
             // Parse the response and handle the data as needed
             Gson gson = new Gson();
@@ -448,11 +435,30 @@ public class WeatherApp extends Application {
         String windDirection = "ERROR"; // Arrow representing direction of wind
         String humidity = "ERROR";
 
-        if (hourlyWeatherData != null) {
-            double tempValue = hourlyWeatherData.getTemp();
-            temperature = String.format("%.2f°C", tempValue);
+        HourlyWeatherData.WeatherData currentHourWeatherData = hourlyWeatherData.getList().get(index);
+        
+        // Get current hour
+        String dateTime = currentHourWeatherData.getDt_txt();
+        String[] dateTimeParts = dateTime.split("");
+        String timePart = dateTimeParts[1];
+        String[] timeParts = timePart.split(":");
+        String hour = timeParts[0];
 
-            int humidityValue = hourlyWeatherData.getHumidity();
+        // Specify unit type 
+        String unit_type;
+        if (unit == "metric") {
+            unit_type = "°C";
+        } else {
+            unit_type = "°F";
+        }
+
+        if (hourlyWeatherData != null) {
+            double tempValue = currentHourWeatherData.getMain().getTemp();
+            int roundedTemp = (int) Math.round(tempValue);
+            
+            temperature = String.format("%d" + unit_type, roundedTemp);
+
+            int humidityValue = currentHourWeatherData.getMain().getHumidity();
             humidity = String.format("%d", humidityValue);
         }
 
@@ -473,14 +479,12 @@ public class WeatherApp extends Application {
         // Clear existing columns
         bottomHBox.getChildren().clear();
 
-        String[] hours = { "00", "01", "02", "03", "04", "05", "06", "07",
-        "08", "09", "10", "11", "12", "13", "14", "15", "16", "17",
-        "18", "19", "20", "21", "22", "23", "24" };
-
-        // Create columns for each hour
-        for (String hour : hours) {
-            VBox hourColumn = createHourColumn(hour, city_loc);
-            bottomHBox.getChildren().add(hourColumn);
+        if (city_loc != null) {
+            // Create a column for each hour
+            for (int i = 0; i < 24; i++) {
+                VBox hourColumn = createHourColumn(i, city_loc);
+                bottomHBox.getChildren().add(hourColumn);
+            }
         }
 
     }
@@ -524,7 +528,8 @@ public class WeatherApp extends Application {
 
         if (timespan.equals("hourly")) {
             // Print the raw JSON response for trouble shooting
-            System.out.println("Raw JSON Response: " + response);
+            // System.out.println("Raw JSON Response: " + response);
+
             // If hourly weather:
             HourlyWeatherData hourlyWeatherData = gson.fromJson(response, HourlyWeatherData.class);
         

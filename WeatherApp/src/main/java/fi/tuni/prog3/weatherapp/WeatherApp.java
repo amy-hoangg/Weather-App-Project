@@ -454,8 +454,6 @@ public class WeatherApp extends Application {
 
             int humidityValue = hourlyWeatherData.getHumidity();
             humidity = String.format("%d", humidityValue);
-
-
         }
 
         // Labels to display weather data

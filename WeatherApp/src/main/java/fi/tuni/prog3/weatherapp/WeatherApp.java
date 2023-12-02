@@ -406,10 +406,12 @@ public class WeatherApp extends Application {
                 "08", "09", "10", "11", "12", "13", "14", "15", "16", "17",
                 "18", "19", "20", "21", "22", "23", "24" };
 
-        // Create a column for each hour
-        for (String hour : hours) {
-            VBox hourColumn = createHourColumn(hour);
-            bottomVBox.getChildren().add(hourColumn);
+        if (city_loc != null) {
+            // Create a column for each hour
+            for (String hour : hours) {
+                VBox hourColumn = createHourColumn(hour);
+                bottomVBox.getChildren().add(hourColumn);
+            }
         }
 
         // Add scrollbar to bottom to scroll through hours

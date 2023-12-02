@@ -336,7 +336,6 @@ public class CurrentWeatherData{
             this.sunset = sunset;
         }
     }
-
     
 }
 

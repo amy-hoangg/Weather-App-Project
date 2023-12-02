@@ -58,7 +58,7 @@ public class WeatherApp extends Application {
 
     String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
 
-    private VBox bottomVBox = new VBox();
+    private HBox bottomHBox = new HBox();
 
     // This displays location name
     private Label locLabel;
@@ -393,11 +393,11 @@ public class WeatherApp extends Application {
     }
 
     public ScrollPane getBottomScrollPane() {
-        bottomVBox.setPrefHeight(200);
-        bottomVBox.setStyle("-fx-background-color: white;");
+        bottomHBox.setPrefHeight(200);
+        bottomHBox.setStyle("-fx-background-color: white;");
 
-        bottomVBox.setSpacing(10);
-        bottomVBox.setAlignment(Pos.CENTER);
+        bottomHBox.setSpacing(10);
+        bottomHBox.setAlignment(Pos.CENTER);
 
         String[] hours = { "00", "01", "02", "03", "04", "05", "06", "07",
                 "08", "09", "10", "11", "12", "13", "14", "15", "16", "17",
@@ -407,13 +407,13 @@ public class WeatherApp extends Application {
             // Create a column for each hour
             for (String hour : hours) {
                 VBox hourColumn = createHourColumn(hour, city_loc);
-                bottomVBox.getChildren().add(hourColumn);
+                bottomHBox.getChildren().add(hourColumn);
             }
         }
 
         // Add scrollbar to bottom to scroll through hours
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(bottomVBox);
+        scrollPane.setContent(bottomHBox);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
         return scrollPane;
@@ -473,7 +473,7 @@ public class WeatherApp extends Application {
 
     private void updateHourlyColumns() {
         // Clear existing columns
-        bottomVBox.getChildren().clear();
+        bottomHBox.getChildren().clear();
 
         String[] hours = { "00", "01", "02", "03", "04", "05", "06", "07",
         "08", "09", "10", "11", "12", "13", "14", "15", "16", "17",
@@ -482,7 +482,7 @@ public class WeatherApp extends Application {
         // Create columns for each hour
         for (String hour : hours) {
             VBox hourColumn = createHourColumn(hour, city_loc);
-            bottomVBox.getChildren().add(hourColumn);
+            bottomHBox.getChildren().add(hourColumn);
         }
 
     }

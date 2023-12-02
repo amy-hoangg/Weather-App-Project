@@ -76,7 +76,7 @@ public class WeatherApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        System.setProperty("file.encoding", "UTF-8"); // Needed for non-latin letters
+        System.setProperty("file.encoding", "UTF-8"); // Needed for non-latin letters, DON'T TOUCH THIS!!!
         // Default font for this app
         def_font = Font.font("Arial", 20);
 
@@ -183,14 +183,14 @@ public class WeatherApp extends Application {
         // Creating a HBox for today's weather.
         HBox todayBox = new HBox();
         todayBox.setPrefHeight(350);
-        todayBox.setStyle("-fx-background-color: #327aed;");
+        todayBox.setStyle("-fx-background-color: #FFFFFF;");
 
         // Creating vertical box that will store location, temperature, weather
         // description, images etc in seperate horizontal boxes
         VBox weatherDataBox = new VBox();
         weatherDataBox.setPrefHeight(330);
         weatherDataBox.setPadding(new Insets(10, 10, 10, 10));
-        weatherDataBox.setStyle("-fx-background-color: #327aed;");
+        weatherDataBox.setStyle("-fx-background-color: #FFFFFF;");
 
         // Creating box for today's weather text
         HBox locationBox = new HBox();
@@ -209,7 +209,7 @@ public class WeatherApp extends Application {
         todaysWeather.setStrokeWidth(1.3);
         // Shadow effects
         DropShadow shadow = new DropShadow();
-        shadow.setOffsetY(1.0);
+        shadow.setOffsetY(0.2);
         // Extra text effect
         todaysWeather.setEffect(shadow);
         // Change label looks
@@ -226,7 +226,7 @@ public class WeatherApp extends Application {
         city_locText.setFill(Color.BLACK);
         city_locText.setStrokeWidth(1.3);
         // Shadow effects
-        shadow.setOffsetY(1.0);
+        shadow.setOffsetY(0.2);
         // Extra text effect
         city_locText.setEffect(shadow);
 
@@ -258,7 +258,7 @@ public class WeatherApp extends Application {
         // Creating horizontal box for weather image and temperature
         HBox symbolBox = new HBox();
         symbolBox.setPrefHeight(120);
-        symbolBox.setStyle("-fx-background-color: #327aed;");
+        symbolBox.setStyle("-fx-background-color: #FFFFFF;");
 
         // Creating a weather status indicator gif
         weatherImage = new ImageView();
@@ -266,16 +266,14 @@ public class WeatherApp extends Application {
         weatherImage.setFitWidth(125);
 
         // Placeholder image
-        CurrentWeatherImage = new Image(
-                "C:/Opiskelu/Prog3_project/group3163/WeatherApp/src/main/java/weather_types/placeholder.gif");
-
+        CurrentWeatherImage = new Image(getClass().getResourceAsStream("/weather_types/placeholder.gif"));
         weatherImage.setImage(CurrentWeatherImage);
 
         // Creating label for the temperature
         temperLabel = new Label();
         temperLabel.setMinHeight(50);
         temperLabel.setTextFill(Color.BLACK);
-        temperLabel.setPadding(new Insets(10,10,10,10));
+        temperLabel.setPadding(new Insets(10, 10, 10, 10));
 
         temperText = new Text();
         temperText.setText(temperature);
@@ -287,7 +285,6 @@ public class WeatherApp extends Application {
         temperLabel.setGraphic(temperText);
 
         symbolBox.getChildren().addAll(weatherImage, temperLabel);
-
 
         // Add seperate boxes under each other to the weatherDataBox
         weatherDataBox.getChildren().addAll(locationBox, descriptionLabel, symbolBox);
@@ -463,7 +460,8 @@ public class WeatherApp extends Application {
                     descriptionText.setText(rawString.substring(0, 1).toUpperCase() + rawString.substring(1) + ".");
                 }
 
-                else{descriptionText.setText(rawString);
+                else {
+                    descriptionText.setText(rawString);
 
                 }
             }
@@ -471,29 +469,28 @@ public class WeatherApp extends Application {
     }
 
     // Update temperature
-    void updateTemperText(){
+    void updateTemperText() {
         CurrentWeatherData todaysData = current_history.get(city_loc);
 
-        if(todaysData != null){
+        if (todaysData != null) {
             Double temperatureDouble = todaysData.getMain().getTemp();
 
-            switch(unit){
+            switch (unit) {
                 case "metric":
-                temperature = String.format("%.1f", temperatureDouble) + " °C";
+                    temperature = String.format("%.1f", temperatureDouble) + " °C";
 
-                break;
-           
+                    break;
+
                 case "imperial":
-                temperature = String.format("%.1f", temperatureDouble) + " °F";
+                    temperature = String.format("%.1f", temperatureDouble) + " °F";
 
-                break;
+                    break;
             }
 
             temperText.setText(temperature);
 
         }
     }
-
 
     // This updates the gif of current weather
     private void updateWeatherImage() {

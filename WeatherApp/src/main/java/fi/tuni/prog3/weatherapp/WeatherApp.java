@@ -34,7 +34,9 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
@@ -54,6 +56,8 @@ public class WeatherApp extends Application {
     Map<String, CurrentWeatherData> current_history = new HashMap<>();
     Map<String, HourlyWeatherData> hourly_history = new HashMap<>();
     // Map<String, DailyWeatherData> daily_history = new HashMap<>();
+
+    List<String> favourites = new ArrayList<String>();
 
     String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
     // String api_key_Hans = "83d2b0a2d2140939c7f59d054de6a413";
@@ -78,7 +82,12 @@ public class WeatherApp extends Application {
     private Text feelsText;
     private Text windText;
     private ImageView weatherImage;
+    private ImageView favStar;
     private Image CurrentWeatherImage;
+    private Image starImage;
+    private Image emptyStarImage;
+    private TextField locField;
+    private Button locButton;
 
     @Override
     public void start(Stage stage) {
@@ -132,24 +141,21 @@ public class WeatherApp extends Application {
         Button unitButton = getUnitToggleButton();
         unitButton.setMinWidth(60);
 
-        // Creating favourites button
-
-        Button FavButton = new Button("Favourites");
-
         // Adding search for location textbox
 
-        TextField locField = new TextField();
+        locField = new TextField();
         locField.setMaxWidth(100);
         locField.setPromptText("Enter your city: ");
 
         // Location search button
 
-        Button locButton = new Button("Search for city");
+        locButton = new Button("Search for city");
 
         locButton.setOnAction(event -> {
             city_loc = locField.getText();
 
             // API call for weekly/current weather happens here
+            // Also a lot of other functions are activated each time search button is pressed
             try {
                 getWeatherData(city_loc, api_key_Abu, "current");
                 updateLocLabel();
@@ -158,6 +164,8 @@ public class WeatherApp extends Application {
                 updateTemperText();
                 updateFeelsText();
                 updateWindSpeed();
+                isFavourite();
+
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -172,21 +180,35 @@ public class WeatherApp extends Application {
             }
         });
 
-        // Creating spacer and adjusting button layout
-
+        // Adjusting favourites dropbox size and other visual adjusting
+        favouritesDropBox().setMinWidth(50);
+        favouritesDropBox().setPromptText("Favourites");
         Region spacer = new Region();
-
         HBox.setMargin(locField, new Insets(0, 10, 0, 0));
         HBox.setMargin(spacer, new Insets(0, 280, 0, 0));
         HBox.setMargin(unitButton, new Insets(0, 10, 0, 5));
-        HBox.setMargin(FavButton, new Insets(0, 10, 0, 10));
+        HBox.setMargin(favouritesDropBox(), new Insets(0, 10, 0, 10));
 
-        topHBox.getChildren().addAll(unitButton, locField, locButton, FavButton, langButton());
+        topHBox.getChildren().addAll(unitButton, locField, locButton, favouritesDropBox(), langButton());
 
         return topHBox;
     }
 
     private HBox getTodayBox() {
+
+        // Creating favourite button that will save/unsave favourite locations
+        Button favButton = new Button();
+        favButton.setMaxSize(20,20);
+        favButton.setPadding(new Insets(10,10,10,10));
+        emptyStarImage = new Image(getClass().getResourceAsStream("/icons/empty_star.png"));
+        favStar = new ImageView(emptyStarImage);
+        favStar.setFitHeight(20);
+        favStar.setFitWidth(20);
+        favButton.setGraphic(favStar);
+
+        favButton.setOnAction(event -> {toggleFavourite(favButton);
+        });
+
 
         // Creating a HBox for today's weather.
         HBox todayBox = new HBox();
@@ -335,7 +357,7 @@ public class WeatherApp extends Application {
         // Add seperate boxes under each other to the weatherDataBox
         weatherDataBox.getChildren().addAll(locationBox, descriptionLabel, symbolBox);
         // Add the vertical box to the first big box that display's today's weather
-        todayBox.getChildren().addAll(weatherDataBox);
+        todayBox.getChildren().addAll(weatherDataBox, favButton);
 
         return todayBox;
     }
@@ -488,6 +510,52 @@ public class WeatherApp extends Application {
 
     }
 
+
+
+
+
+
+    // Check whether location is in favourites
+    private boolean isFavourite(){
+        if(favourites.contains(city_loc)){
+            starImage = new Image(getClass().getResourceAsStream("/icons/star.png"));
+            favStar.setImage(starImage);
+            return true;
+        }
+
+        else{
+            starImage = new Image(getClass().getResourceAsStream("/icons/empty_star.png"));
+            favStar.setImage(starImage);
+            return false;
+        }
+    }
+
+    // This function adds/removes favourites from list and updates star icon
+    private void toggleFavourite(Button favButton){
+        if(isFavourite()){
+            favourites.remove(city_loc);
+            emptyStarImage = new Image(getClass().getResourceAsStream("/icons/empty_star.png"));
+            favStar = new ImageView(emptyStarImage);
+            favStar.setFitWidth(20);
+            favStar.setFitHeight(20);
+            favButton.setGraphic(favStar);
+        }
+
+        else{
+            favourites.add(city_loc);
+            starImage = new Image(getClass().getResourceAsStream("/icons/star.png"));
+            favStar = new ImageView(starImage);
+            favStar.setFitWidth(20);
+            favStar.setFitHeight(20);
+            favButton.setGraphic(favStar);
+            favButton.setGraphic(favStar);
+        }
+
+        // Updating the contents of favourites dropbox
+        updateFavouritesComboBox();
+    }
+
+
     // Update location label
     private void updateLocLabel() {
         city_locText.setFont(locFont);
@@ -633,11 +701,12 @@ public class WeatherApp extends Application {
 
     }
 
+    // This changes language
     private ComboBox<String> langButton() {
 
         ComboBox<String> langBox = new ComboBox<>();
         // Add options to the ComboBox
-        langBox.getItems().addAll("en", "fi", "fr", "tr", "az", "zh_cn", "vi", "de", "da");
+        langBox.getItems().addAll("en", "fi", "fr", "tr", "az", "zh_cn", "vi", "de", "da", "sp");
         langBox.setValue("en");
 
         lang = langBox.getValue();
@@ -652,5 +721,36 @@ public class WeatherApp extends Application {
 
         return langBox;
     }
+
+    // Favourites can be accessed here
+    private ComboBox<String> favouritesBox = new ComboBox<>();
+
+
+    private ComboBox<String> favouritesDropBox(){
+
+        // Siphon favourites here
+        favouritesBox.getItems().setAll(favourites);
+        
+        // Add selected favourite to search box
+        favouritesBox.setOnAction(event -> {
+            String selectedFavourite = favouritesBox.getValue();
+            if(selectedFavourite != null){
+                locField.setText(selectedFavourite);
+                locButton.fire();
+
+            }
+
+        });
+
+        return favouritesBox;
+
+
+    }
+
+    // This method updates the items in the ComboBox
+private void updateFavouritesComboBox() {
+    favouritesDropBox().getItems().clear();
+    favouritesDropBox().getItems().setAll(favourites);
+}
 
 }

@@ -407,25 +407,9 @@ public class WeatherApp extends Application {
         return scrollPane;
     }
 
-    private VBox createHourColumn(int index, String city) {
+    private VBox createHourColumn(int index, String city, HourlyWeatherData hourlyWeatherData) {
         VBox hourColumn = new VBox();
         hourColumn.setAlignment(Pos.CENTER);
-
-        HourlyWeatherData hourlyWeatherData;
-
-        try {
-    
-            // Call the getWeatherData function to retrieve hourly weather data
-            String response = getWeatherData(city, api_key_Abu, "hourly");
-            
-            // Parse the response and handle the data as needed
-            Gson gson = new Gson();
-            hourlyWeatherData = gson.fromJson(response, HourlyWeatherData.class);
-
-        } catch (IOException e) {
-            e.printStackTrace(); // Handle the exception according to your needs
-            return hourColumn;
-        }
         
         // TODO: Get actual weather data
         String temperature = "ERROR";
@@ -490,10 +474,24 @@ public class WeatherApp extends Application {
         // Clear existing columns
         bottomHBox.getChildren().clear();
 
+        HourlyWeatherData hourlyWeatherData;
+        try {
+            // Call the getWeatherData function to retrieve hourly weather data
+            String response = getWeatherData(city_loc, api_key_Abu, "hourly");
+            
+            // Parse the response and handle the data as needed
+            Gson gson = new Gson();
+            hourlyWeatherData = gson.fromJson(response, HourlyWeatherData.class);
+
+        } catch (IOException e) {
+            e.printStackTrace(); // Handle the exception according to your needs
+            return;
+        }
+
         if (city_loc != null) {
             // Create a column for each hour
             for (int i = 0; i < 24; i++) {
-                VBox hourColumn = createHourColumn(i, city_loc);
+                VBox hourColumn = createHourColumn(i, city_loc, hourlyWeatherData);
                 bottomHBox.getChildren().add(hourColumn);
             }
         }

@@ -5,16 +5,16 @@ import java.util.List;
 import com.google.gson.Gson;
 
 public class HourlyWeatherData {
-    private long dt;
-    private double temp;
-    private double feels_like;
-    private int humidity;
-    private City city;
+    public  long dt;
+    public  double temp;
+    public  double feels_like;
+    public  int humidity;
+    public  City city;
 
     // Nested Coord class
     public static class Coord {
-        private double lat;
-        private double lon;
+        public  double lat;
+        public  double lon;
 
         public double getLat() {
             return lat;
@@ -35,14 +35,14 @@ public class HourlyWeatherData {
 
     // Nested City class
     public static class City {
-        private int id;
-        private String name;
-        private Coord coord;
-        private String country;
-        private int population;
-        private int timezone;
-        private long sunrise;
-        private long sunset;
+        public  int id;
+        public  String name;
+        public  Coord coord;
+        public  String country;
+        public  int population;
+        public  int timezone;
+        public  long sunrise;
+        public  long sunset;
 
         public int getId() {
             return id;

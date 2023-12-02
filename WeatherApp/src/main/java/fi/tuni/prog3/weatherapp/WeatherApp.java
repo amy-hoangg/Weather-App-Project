@@ -41,8 +41,6 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 
-import fi.tuni.prog3.weatherapp.HourlyWeatherData.Main;
-
 /**
  * JavaFX Sisu
  */
@@ -437,17 +435,7 @@ public class WeatherApp extends Application {
             Gson gson = new Gson();
             hourlyWeatherData = gson.fromJson(response, HourlyWeatherData.class);
     
-            // Access the first Forecast object in the list
-            HourlyWeatherData.Forecast firstForecast = hourlyWeatherData.getList().get(0);
-    
-            // Test print for hourly weather
-            String weatherTest = new String("Hourly Weather in " + hourlyWeatherData.getCity() + " "
-                    + hourlyWeatherData.getList().get(0).getWeather().get(0).getDescription() + " "
-                    + hourlyWeatherData.getList().get(0).getWeather().get(0).getMain() + " "
-                    + " " + String.format("%.2f", hourlyWeatherData.getList().get(0).getMain().getTemp()));
 
-            System.out.println(weatherTest);
-    
         } catch (IOException e) {
             e.printStackTrace(); // Handle the exception according to your needs
             return hourColumn;
@@ -460,11 +448,14 @@ public class WeatherApp extends Application {
         String windDirection = "ERROR"; // Arrow representing direction of wind
         String humidity = "ERROR";
 
-        Main mainData = hourlyWeatherData.getMain();
-
-        if (mainData != null) {
-            double tempValue = mainData.getTemp();
+        if (hourlyWeatherData != null) {
+            double tempValue = hourlyWeatherData.getTemp();
             temperature = String.format("%.2f°C", tempValue);
+
+            int humidityValue = hourlyWeatherData.getHumidity();
+            humidity = String.format("%d", humidityValue);
+
+
         }
 
         // Labels to display weather data
@@ -538,23 +529,10 @@ public class WeatherApp extends Application {
             System.out.println("Raw JSON Response: " + response);
             // If hourly weather:
             HourlyWeatherData hourlyWeatherData = gson.fromJson(response, HourlyWeatherData.class);
-            
-            // Update searched city's name
-            city_loc = hourlyWeatherData.getCity();
-
-            // Accessing the first Forecast object in the list
-            HourlyWeatherData.Forecast firstForecast = hourlyWeatherData.getList().get(0);
         
-            // Test print for hourly weather
-            String weatherTest = new String("Hourly Weather in " + hourlyWeatherData.getCity() + " "
-                    + firstForecast.getWeather().get(0).getDescription() + " "
-                    + firstForecast.getWeather().get(0).getMain() + " "
-                    + " " + String.format("%.2f", firstForecast.getMain().getTemp()));
-        
-            System.out.println(weatherTest);
         
             // Saving generated hourlyWeatherData object to a container for later accessing
-            hourly_history.put(hourlyWeatherData.getCity(), hourlyWeatherData);
+            hourly_history.put(hourlyWeatherData.getCity().getName(), hourlyWeatherData);
         } 
 
         else if (timespan.equals("daily")) {

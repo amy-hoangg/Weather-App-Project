@@ -21,19 +21,16 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +57,8 @@ public class WeatherApp extends Application {
     
     // Placeholder image is used often so load it once here to reduce
     // memory usage
-    Image placeholderImage = new Image(getClass().getResourceAsStream("/weather_types/placeholder.gif"));
+    Image placeholderImage = new Image(getClass().getResourceAsStream(
+        "/weather_types/placeholder.gif"));
 
     List<String> favourites = new ArrayList<String>();
 
@@ -114,7 +112,7 @@ public class WeatherApp extends Application {
         root.setBottom(quitButton);
         BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
 
-        Scene scene = new Scene(root, 600, 800);
+        Scene scene = new Scene(root, 600, 900);
         stage.setScene(scene);
         stage.setTitle("WeatherApp");
         stage.show();
@@ -128,9 +126,9 @@ public class WeatherApp extends Application {
         // Creating an HBox.
         VBox centerHBox = new VBox(10);
 
-        // Adding two VBox to the HBox.
+        // Add all boxes and scrollpane to centerbox
         centerHBox.getChildren().addAll(getTopButtonBox(), getTodayBox(),
-                getMiddleBox(), getBottomScrollPane());
+                getMiddleBox(), getBottomScrollPane(), getBottomVBox());
 
         return centerHBox;
     }
@@ -400,7 +398,53 @@ public class WeatherApp extends Application {
         return middleBox;
     }
 
-    public ScrollPane getBottomScrollPane() {
+    private String splitStringIntoLines(String input, int maxCharacters) {
+        if (input.length() <= maxCharacters) {
+            return input;  // No need to split, the string is short enough
+        } else {
+            int splitIndex = input.lastIndexOf(' ', maxCharacters);
+            if (splitIndex == -1) {
+                // If there are no spaces, split at the maxCharacters position
+                splitIndex = maxCharacters;
+            }
+            return input.substring(0, splitIndex) + "\n" + input.substring(splitIndex).trim();
+        }
+    }
+
+    private VBox getBottomVBox() {
+        VBox bottomVBox = new VBox(10);
+        bottomVBox.setPrefHeight(200);
+        bottomVBox.setStyle("-fx-background-color: white;");
+
+        // Get random quote from Quotes class
+        Quotes quotes = new Quotes();
+        String randomQuote = quotes.getRandomQuote();
+
+        // Split quote to lines if it is too long to fit in one line
+        randomQuote = splitStringIntoLines(randomQuote, 50);
+
+        // Create custom text font
+        titleFont = Font.font(def_font.getFamily(), FontPosture.ITALIC, 20);
+
+        
+        // Create bottom label for Quote
+        Label bottomBoxTitle = new Label();
+        bottomBoxTitle.setPadding(new Insets(5, 5, 5, 5));
+
+        // Set random quote
+        Text quote = new Text(randomQuote);
+        quote.setFont(titleFont);
+        quote.setStroke(Color.BLACK);
+        quote.setFill(Color.BLACK);
+        quote.setStrokeWidth(0.5);
+        bottomBoxTitle.setGraphic(quote);
+
+        bottomVBox.getChildren().addAll(bottomBoxTitle);
+
+        return bottomVBox;
+    }
+
+    private ScrollPane getBottomScrollPane() {
         bottomHBox.setPrefHeight(200);
         bottomHBox.setStyle("-fx-background-color: white;");
 

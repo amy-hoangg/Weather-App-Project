@@ -24,7 +24,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
@@ -404,19 +403,6 @@ public class WeatherApp extends Application {
         return middleBox;
     }
 
-    private String splitStringIntoLines(String input, int maxCharacters) {
-        if (input.length() <= maxCharacters) {
-            return input;  // No need to split, the string is short enough
-        } else {
-            int splitIndex = input.lastIndexOf(' ', maxCharacters);
-            if (splitIndex == -1) {
-                // If there are no spaces, split at the maxCharacters position
-                splitIndex = maxCharacters;
-            }
-            return input.substring(0, splitIndex) + "\n" + input.substring(splitIndex).trim();
-        }
-    }
-
     private VBox getBottomVBox() {
         VBox bottomVBox = new VBox(10);
         bottomVBox.setPrefHeight(100);
@@ -459,11 +445,22 @@ public class WeatherApp extends Application {
         attributionText.setStrokeWidth(0.5);
 
         bottomBoxTitle.setGraphic(new VBox(quoteText, attributionText));
-        // quoteText.setTextAlignment(TextAlignment.CENTER);
 
         bottomVBox.getChildren().addAll(bottomBoxTitle);
-
         return bottomVBox;
+    }
+
+    private String splitStringIntoLines(String input, int maxCharacters) {
+        if (input.length() <= maxCharacters) {
+            return input;  // No need to split, the string is short enough
+        } else {
+            int splitIndex = input.lastIndexOf(' ', maxCharacters);
+            if (splitIndex == -1) {
+                // If there are no spaces, split at the maxCharacters position
+                splitIndex = maxCharacters;
+            }
+            return input.substring(0, splitIndex) + "\n" + input.substring(splitIndex).trim();
+        }
     }
 
     private ScrollPane getBottomScrollPane() {
@@ -484,8 +481,7 @@ public class WeatherApp extends Application {
     private VBox createHourColumn(int index, String city, HourlyWeatherData hourlyWeatherData) {
         VBox hourColumn = new VBox();
         hourColumn.setAlignment(Pos.CENTER);
-        
-        // TODO: Get actual weather data
+
         String temperature = "ERROR";
         String windSpeed = "ERROR";
         String humidity = "ERROR";
@@ -659,7 +655,6 @@ public class WeatherApp extends Application {
     
             System.out.println(weatherTest);
         }
-
         return response;
 
     }
@@ -874,7 +869,6 @@ public class WeatherApp extends Application {
     // Favourites can be accessed here
     private ComboBox<String> favouritesBox = new ComboBox<>();
 
-
     private ComboBox<String> favouritesDropBox(){
 
         // Siphon favourites here
@@ -897,7 +891,7 @@ public class WeatherApp extends Application {
     }
 
     // This method updates the items in the ComboBox
-private void updateFavouritesComboBox() {
+    private void updateFavouritesComboBox() {
     favouritesDropBox().getItems().clear();
     favouritesDropBox().getItems().setAll(favourites);
 }

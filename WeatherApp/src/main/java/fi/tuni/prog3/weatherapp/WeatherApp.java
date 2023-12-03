@@ -24,6 +24,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
@@ -413,8 +414,9 @@ public class WeatherApp extends Application {
 
     private VBox getBottomVBox() {
         VBox bottomVBox = new VBox(10);
-        bottomVBox.setPrefHeight(200);
+        bottomVBox.setPrefHeight(100);
         bottomVBox.setStyle("-fx-background-color: white;");
+        bottomVBox.setAlignment(Pos.CENTER);
 
         // Get random quote from Quotes class
         Quotes quotes = new Quotes();
@@ -427,9 +429,10 @@ public class WeatherApp extends Application {
         titleFont = Font.font(def_font.getFamily(), FontPosture.ITALIC, 20);
 
         
-        // Create bottom label for Quote
+        // Create bottom label for the Quote
         Label bottomBoxTitle = new Label();
         bottomBoxTitle.setPadding(new Insets(5, 5, 5, 5));
+        bottomBoxTitle.setAlignment(Pos.CENTER);
 
         // Set random quote
         Text quote = new Text(randomQuote);
@@ -438,6 +441,7 @@ public class WeatherApp extends Application {
         quote.setFill(Color.BLACK);
         quote.setStrokeWidth(0.5);
         bottomBoxTitle.setGraphic(quote);
+        quote.setTextAlignment(TextAlignment.CENTER);
 
         bottomVBox.getChildren().addAll(bottomBoxTitle);
 

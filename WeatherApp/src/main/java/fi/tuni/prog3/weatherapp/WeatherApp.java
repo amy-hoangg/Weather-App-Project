@@ -421,7 +421,7 @@ public class WeatherApp extends Application {
         
         // TODO: Get actual weather data
         String temperature = "ERROR";
-        String windDirection = "ERROR"; // Arrow representing direction of wind
+        String windSpeed = "ERROR";
         String humidity = "ERROR";
 
         HourlyWeatherData.WeatherData currentHourWeatherData = hourlyWeatherData.getList().get(index);
@@ -434,11 +434,16 @@ public class WeatherApp extends Application {
         String hour = timeParts[0];
 
         // Specify unit type 
-        String unit_type;
+        String temp_type;
+        String speed_type;
         if (unit.equals("metric")) {
-            unit_type = "°C";
+            temp_type = "°C";
+            // Meters per second
+            speed_type = "m/s";
         } else {
-            unit_type = "°F";
+            temp_type = "°F";
+            // Miles per hour
+            speed_type = "m/h";
         }
 
         // Placeholder image
@@ -462,10 +467,15 @@ public class WeatherApp extends Application {
             double tempValue = currentHourWeatherData.getMain().getTemp();
             int roundedTemp = (int) Math.round(tempValue);
             
-            temperature = String.format("%d" + unit_type, roundedTemp);
+            temperature = String.format("%d" + temp_type, roundedTemp);
 
             int humidityValue = currentHourWeatherData.getMain().getHumidity();
             humidity = String.format("%d", humidityValue);
+
+            // Set wind speed
+            double speedValue = currentHourWeatherData.getWind().getSpeed();
+            int roundedSpeed = (int) Math.round(speedValue);
+            windSpeed = String.format("%d" + speed_type, roundedSpeed);
         }
 
         // Create an ImageView with the weather status icon
@@ -476,7 +486,7 @@ public class WeatherApp extends Application {
         // Elements to display weather data
         Label hourLabel = new Label(hour);
         Label tempLabel = new Label(temperature);
-        Label windLabel = new Label(windDirection);
+        Label windLabel = new Label(windSpeed);
         Label humidityLabel = new Label(humidity);
 
         // Add labels to VBox

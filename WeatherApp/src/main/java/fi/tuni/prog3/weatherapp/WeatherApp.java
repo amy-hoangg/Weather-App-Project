@@ -425,6 +425,11 @@ public class WeatherApp extends Application {
         // Split quote to lines if it is too long to fit in one line
         randomQuote = splitStringIntoLines(randomQuote, 50);
 
+        // Extract attribution from the quote
+        String[] qutoeParts = randomQuote.split("~");
+        String quotePart = qutoeParts[0].trim();
+        String attributionPart = "~" + qutoeParts[1].trim();
+
         // Create custom text font
         titleFont = Font.font(def_font.getFamily(), FontPosture.ITALIC, 20);
 
@@ -435,13 +440,21 @@ public class WeatherApp extends Application {
         bottomBoxTitle.setAlignment(Pos.CENTER);
 
         // Set random quote
-        Text quote = new Text(randomQuote);
-        quote.setFont(titleFont);
-        quote.setStroke(Color.BLACK);
-        quote.setFill(Color.BLACK);
-        quote.setStrokeWidth(0.5);
-        bottomBoxTitle.setGraphic(quote);
-        quote.setTextAlignment(TextAlignment.CENTER);
+        Text quoteText = new Text(quotePart);
+        quoteText.setFont(titleFont);
+        quoteText.setStroke(Color.BLACK);
+        quoteText.setFill(Color.BLACK);
+        quoteText.setStrokeWidth(0.5);
+
+        // Set attribution on a new line
+        Text attributionText = new Text(attributionPart);
+        attributionText.setFont(titleFont);
+        attributionText.setStroke(Color.BLACK);
+        attributionText.setFill(Color.BLACK);
+        attributionText.setStrokeWidth(0.5);
+
+        bottomBoxTitle.setGraphic(new VBox(quoteText, attributionText));
+        // quoteText.setTextAlignment(TextAlignment.CENTER);
 
         bottomVBox.getChildren().addAll(bottomBoxTitle);
 

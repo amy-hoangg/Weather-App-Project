@@ -54,6 +54,14 @@ public class WeatherApp extends Application {
     Map<String, HourlyWeatherData> hourly_history = new HashMap<>();
     // Map<String, DailyWeatherData> daily_history = new HashMap<>();
 
+    // Container for cached images to reduce memory usage
+    // The key is the weather status icon id (for example "04n")
+    Map<String, Image> imageCache = new HashMap<>();
+    
+    // Placeholder image is used often so load it once here to reduce
+    // memory usage
+    Image placeholderImage = new Image(getClass().getResourceAsStream("/weather_types/placeholder.gif"));
+
     List<String> favourites = new ArrayList<String>();
 
     String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
@@ -427,22 +435,29 @@ public class WeatherApp extends Application {
 
         // Specify unit type 
         String unit_type;
-        if (unit == "metric") {
+        if (unit.equals("metric")) {
             unit_type = "°C";
         } else {
             unit_type = "°F";
         }
 
-        // Placeholder
-        Image currentHourWeatherImage = new Image(getClass().getResourceAsStream("/weather_types/placeholder.gif"));
+        // Placeholder image
+        Image currentHourWeatherImage = placeholderImage;
         
         // Set the weather data to variables
         if (hourlyWeatherData != null) {
 
             String weatherStatus = currentHourWeatherData.getWeather().get(0).getIcon();
-            String imagePath = "/weather_types/" + weatherStatus + ".gif";
 
-            currentHourWeatherImage = new Image(getClass().getResourceAsStream(imagePath));
+            currentHourWeatherImage = imageCache.get(weatherStatus);
+
+            if (currentHourWeatherImage == null) {
+                String imagePath = "/weather_types/" + weatherStatus + ".gif";
+                currentHourWeatherImage = new Image(getClass().getResourceAsStream(imagePath));
+
+                // Put the loaded image into the cache
+                imageCache.put(weatherStatus, currentHourWeatherImage);
+            }
 
             double tempValue = currentHourWeatherData.getMain().getTemp();
             int roundedTemp = (int) Math.round(tempValue);
@@ -455,8 +470,8 @@ public class WeatherApp extends Application {
 
         // Create an ImageView with the weather status icon
         ImageView weatherIconView = new ImageView(currentHourWeatherImage);
-        weatherIconView.setFitHeight(5);  // Set the height as needed
-        weatherIconView.setFitWidth(5);   // Set the width as needed
+        weatherIconView.setFitHeight(25);  // Set the height as needed
+        weatherIconView.setFitWidth(25);   // Set the width as needed
 
         // Elements to display weather data
         Label hourLabel = new Label(hour);

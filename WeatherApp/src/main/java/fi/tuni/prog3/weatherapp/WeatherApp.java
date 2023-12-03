@@ -58,12 +58,11 @@ public class WeatherApp extends Application {
     
     // Placeholder image is used often so load it once here to reduce
     // memory usage
-    Image placeholderImage = new Image(getClass().getResourceAsStream(
-        "/weather_types/placeholder.gif"));
+    private static Image placeholderImage;
 
     List<String> favourites = new ArrayList<String>();
 
-    String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
+    private static String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
 
     private HBox bottomHBox = new HBox();
 
@@ -120,7 +119,13 @@ public class WeatherApp extends Application {
     }
 
     public static void main(String[] args) {
+        initImages();
         launch();
+    }
+
+    // Initialize placeholder image
+    private static void initImages() {
+        placeholderImage = new Image(WeatherApp.class.getResourceAsStream("/weather_types/placeholder.gif"));
     }
 
     private VBox getCenterVBox() {

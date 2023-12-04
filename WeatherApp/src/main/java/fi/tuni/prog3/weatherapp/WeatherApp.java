@@ -12,7 +12,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -33,6 +32,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -50,6 +50,9 @@ public class WeatherApp extends Application {
     String unit = "metric";
     String lang = "en";
 
+    // For error handling
+    Boolean LOCATION_NOT_FOUND = false;
+
     // Container for current city weather data
     Map<String, CurrentWeatherData> current_history = new HashMap<>();
     Map<String, HourlyWeatherData> hourly_history = new HashMap<>();
@@ -58,7 +61,7 @@ public class WeatherApp extends Application {
     // Container for cached images to reduce memory usage
     // The key is the weather status icon id (for example "04n")
     Map<String, Image> imageCache = new HashMap<>();
-    
+
     // Placeholder image is used often so load it once here to reduce
     // memory usage
     private static Image placeholderImage;
@@ -69,7 +72,8 @@ public class WeatherApp extends Application {
 
     private HBox bottomHBox = new HBox();
 
-    // This displays location name
+    // Different variables
+    private String response;
     private Label locLabel;
     private Label temperLabel;
     private Label feelsLabel;
@@ -96,13 +100,14 @@ public class WeatherApp extends Application {
     private TextField locField;
     private Button locButton;
     private Button favButton;
+    private ComboBox<String> langBox;
 
     @Override
     public void start(Stage stage) {
         System.setProperty("file.encoding", "UTF-8"); // Needed for non-latin letters, DON'T TOUCH THIS!!!
         // Default font for this app
         def_font = Font.font("Arial", 20);
-        
+
         // Creating a new BorderPane.
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(10, 10, 10, 10));
@@ -197,17 +202,17 @@ public class WeatherApp extends Application {
 
         // Creating favourite button that will save/unsave favourite locations
         favButton = new Button();
-        favButton.setMaxSize(20,20);
-        favButton.setPadding(new Insets(10,10,10,10));
+        favButton.setMaxSize(20, 20);
+        favButton.setPadding(new Insets(10, 10, 10, 10));
         emptyStarImage = new Image(getClass().getResourceAsStream("/icons/empty_star.png"));
         favStar = new ImageView(emptyStarImage);
         favStar.setFitHeight(20);
         favStar.setFitWidth(20);
         favButton.setGraphic(favStar);
 
-        favButton.setOnAction(event -> {toggleFavourite();
+        favButton.setOnAction(event -> {
+            toggleFavourite();
         });
-
 
         // Creating a HBox for today's weather.
         HBox todayBox = new HBox();
@@ -237,10 +242,9 @@ public class WeatherApp extends Application {
         todaysWeather.setFill(Color.BLACK);
         todaysWeather.setStrokeWidth(0.5);
         // Shadow effects
-        DropShadow shadow = new DropShadow();
-        shadow.setOffsetY(0.2);
+
         // Extra text effect
-        todaysWeather.setEffect(shadow);
+
         // Change label looks
         topBoxTitle.setTextFill(Color.SKYBLUE);
         topBoxTitle.setMinWidth(169);
@@ -254,10 +258,8 @@ public class WeatherApp extends Application {
         city_locText.setStroke(Color.BLACK);
         city_locText.setFill(Color.BLACK);
         city_locText.setStrokeWidth(0.5);
-        // Shadow effects
-        shadow.setOffsetY(0.0);
+
         // Extra text effect
-        city_locText.setEffect(shadow);
 
         // This label will have the location name
         locLabel = new Label();
@@ -317,7 +319,7 @@ public class WeatherApp extends Application {
         feelsLabel = new Label();
         feelsLabel.setMinHeight(50);
         feelsLabel.setTextFill(Color.BLACK);
-        feelsLabel.setPadding(new Insets(10,10,10,10));
+        feelsLabel.setPadding(new Insets(10, 10, 10, 10));
 
         feelsText = new Text();
         feelsText.setText(feelsLike);
@@ -332,7 +334,7 @@ public class WeatherApp extends Application {
         windLabel = new Label();
         windLabel.setMinHeight(50);
         windLabel.setTextFill(Color.BLACK);
-        windLabel.setPadding(new Insets(10,10,10,10));
+        windLabel.setPadding(new Insets(10, 10, 10, 10));
 
         windText = new Text();
         windText.setText(windSpeed);
@@ -350,7 +352,6 @@ public class WeatherApp extends Application {
 
         feelsAndWindBox.getChildren().addAll(feelsLabel, windLabel);
 
-
         symbolBox.getChildren().addAll(weatherImage, temperLabel, feelsAndWindBox);
 
         // Add seperate boxes under each other to the weatherDataBox
@@ -361,7 +362,6 @@ public class WeatherApp extends Application {
         // Load previously saved favourites
         loadFavourites();
         updateFavouritesComboBox();
-
 
         return todayBox;
     }
@@ -416,7 +416,6 @@ public class WeatherApp extends Application {
         // Create custom text font
         titleFont = Font.font(def_font.getFamily(), FontPosture.ITALIC, 20);
 
-        
         // Create bottom label for the Quote
         Label bottomBoxTitle = new Label();
         bottomBoxTitle.setPadding(new Insets(5, 5, 5, 5));
@@ -444,7 +443,7 @@ public class WeatherApp extends Application {
 
     private String splitStringIntoLines(String input, int maxCharacters) {
         if (input.length() <= maxCharacters) {
-            return input;  // No need to split, the string is short enough
+            return input; // No need to split, the string is short enough
         } else {
             int splitIndex = input.lastIndexOf(' ', maxCharacters);
             if (splitIndex == -1) {
@@ -479,7 +478,7 @@ public class WeatherApp extends Application {
         String humidity = "ERROR";
 
         HourlyWeatherData.WeatherData currentHourWeatherData = hourlyWeatherData.getList().get(index);
-        
+
         // Get current hour
         String dateTime = currentHourWeatherData.getDt_txt();
         String[] dateTimeParts = dateTime.split(" ");
@@ -487,7 +486,7 @@ public class WeatherApp extends Application {
         String[] timeParts = timePart.split(":");
         String hour = timeParts[0];
 
-        // Specify unit type 
+        // Specify unit type
         String temp_type;
         String speed_type;
         if (unit.equals("metric")) {
@@ -502,7 +501,7 @@ public class WeatherApp extends Application {
 
         // Placeholder image
         Image currentHourWeatherImage = placeholderImage;
-        
+
         // Set the weather data to variables
         if (hourlyWeatherData != null) {
 
@@ -520,7 +519,7 @@ public class WeatherApp extends Application {
 
             double tempValue = currentHourWeatherData.getMain().getTemp();
             int roundedTemp = (int) Math.round(tempValue);
-            
+
             temperature = String.format("%d" + temp_type, roundedTemp);
 
             int humidityValue = currentHourWeatherData.getMain().getHumidity();
@@ -534,8 +533,8 @@ public class WeatherApp extends Application {
 
         // Create an ImageView with the weather status icon
         ImageView weatherIconView = new ImageView(currentHourWeatherImage);
-        weatherIconView.setFitHeight(25);  // Set the height as needed
-        weatherIconView.setFitWidth(25);   // Set the width as needed
+        weatherIconView.setFitHeight(25); // Set the height as needed
+        weatherIconView.setFitWidth(25); // Set the width as needed
 
         // Elements to display weather data
         Label hourLabel = new Label(hour);
@@ -556,8 +555,8 @@ public class WeatherApp extends Application {
         HourlyWeatherData hourlyWeatherData;
         try {
             // Call the getWeatherData function to retrieve hourly weather data
-            String response = getWeatherData(city_loc, api_key_Abu, "hourly");
-            
+            response = getWeatherData(city_loc, api_key_Abu, "hourly");
+
             // Parse the response and handle the data as needed
             Gson gson = new Gson();
             hourlyWeatherData = gson.fromJson(response, HourlyWeatherData.class);
@@ -579,7 +578,7 @@ public class WeatherApp extends Application {
 
     private String getWeatherData(String city, String apikey, String timespan) throws IOException {
         String apiUrl;
-        if (timespan == "hourly") {
+        if (timespan.equals("hourly")) {
             apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/hourly?q=" + city + "&appid=" + apikey
                     + "&units=" + unit + "&lang=" + lang;
         } else if (timespan == "daily") {
@@ -593,102 +592,118 @@ public class WeatherApp extends Application {
         URL url = new URL(apiUrl);
 
         // Opening HTML connection
-        URLConnection connection = url.openConnection();
+        URLConnection connection = (HttpURLConnection) url.openConnection();
+
         connection.setRequestProperty(apikey, apiUrl);
 
-        // Establishing the readers
-        BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder respoStringBuilder = new StringBuilder();
-        String line;
+        // Check for possible errors
+        int responseCode = ((HttpURLConnection) connection).getResponseCode();
 
-        // Reading the response
-        while ((line = br.readLine()) != null) {
-            respoStringBuilder.append(line);
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            // Location found
+            LOCATION_NOT_FOUND = false;
+
+            // Establishing the readers
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder respoStringBuilder = new StringBuilder();
+            String line;
+
+            // Reading the response
+            while ((line = br.readLine()) != null) {
+                respoStringBuilder.append(line);
+            }
+
+            br.close();
+
+            // Converting stringbuilder to string
+            response = respoStringBuilder.toString();
+
+            // Using Gson to parse JSON
+            Gson gson = new Gson();
+
+            if (timespan.equals("hourly")) {
+                // Print the raw JSON response for trouble shooting
+                // System.out.println("Raw JSON Response: " + response);
+
+                // If hourly weather:
+                HourlyWeatherData hourlyWeatherData = gson.fromJson(response, HourlyWeatherData.class);
+
+                // Saving generated hourlyWeatherData object to a container for later accessing
+                hourly_history.put(hourlyWeatherData.getCity().getName(), hourlyWeatherData);
+            }
+
+            else if (timespan.equals("daily")) {
+                // TODO: Handle daily weather data parsing
+            }
+
+            else {
+                // If current weather:
+                CurrentWeatherData todaysWeatherData = gson.fromJson(response, CurrentWeatherData.class);
+                // Update searched city's name
+                city_loc = todaysWeatherData.getName();
+
+                // Saving generated todaysWeatherData object to a container for later accessing
+                current_history.put(todaysWeatherData.getName(), todaysWeatherData);
+
+                // Test print for current weather
+                String weatherTest = new String("Weather in " + todaysWeatherData.getName() + " "
+                        + todaysWeatherData.getWeather().get(0).getDescription() + " "
+                        + todaysWeatherData.getWeather().get(0).getMain() + " "
+                        + " " + String.format("%.2f", todaysWeatherData.getMain().getTemp()));
+
+                System.out.println(weatherTest);
+            }
+            return response;
         }
 
-        br.close();
-
-        // Converting stringbuilder to string
-        String response = respoStringBuilder.toString();
-
-        // Using Gson to parse JSON
-        Gson gson = new Gson();
-
-        if (timespan.equals("hourly")) {
-            // Print the raw JSON response for trouble shooting
-            // System.out.println("Raw JSON Response: " + response);
-
-            // If hourly weather:
-            HourlyWeatherData hourlyWeatherData = gson.fromJson(response, HourlyWeatherData.class);
-        
-        
-            // Saving generated hourlyWeatherData object to a container for later accessing
-            hourly_history.put(hourlyWeatherData.getCity().getName(), hourlyWeatherData);
-        } 
-
-        else if (timespan.equals("daily")) {
-            // TODO: Handle daily weather data parsing
-        } 
-        
         else {
-            // If current weather:
-            CurrentWeatherData todaysWeatherData = gson.fromJson(response, CurrentWeatherData.class);
-            // Update searched city's name
-            city_loc = todaysWeatherData.getName();
-    
-            // Saving generated todaysWeatherData object to a container for later accessing
-            current_history.put(todaysWeatherData.getName(), todaysWeatherData);
-    
-            // Test print for current weather
-            String weatherTest = new String("Weather in " + todaysWeatherData.getName() + " "
-                    + todaysWeatherData.getWeather().get(0).getDescription() + " "
-                    + todaysWeatherData.getWeather().get(0).getMain() + " "
-                    + " " + String.format("%.2f", todaysWeatherData.getMain().getTemp()));
-    
-            System.out.println(weatherTest);
-        }
-        return response;
+            LOCATION_NOT_FOUND = true;
+            city_locText = new Text("CITY NOT FOUND");
+            city_locText.setFont(locFont);
+            city_locText.setStroke(Color.BLACK);
+            city_locText.setFill(Color.BLACK);
+            city_locText.setStrokeWidth(0.5);
+            locLabel.setGraphic(city_locText);
 
+            return null;
+
+        }
     }
 
     // Check whether location is in favourites
-    private boolean isFavourite(){
-        if(favourites.contains(city_loc)){
-            starImage = new Image(getClass().getResourceAsStream("/icons/star.png"));
-            favStar.setImage(starImage);
+    private boolean isFavourite() {
+        if (favourites.contains(city_loc)) {
+            updateStarImage("/icons/star.png");
             return true;
-        }
-
-        else{
-            starImage = new Image(getClass().getResourceAsStream("/icons/empty_star.png"));
-            favStar.setImage(starImage);
+        } else {
+            updateStarImage("/icons/empty_star.png");
             return false;
         }
     }
 
     // This function adds/removes favourites from list and updates star icon
-    private void toggleFavourite(){
-        if(isFavourite()){
+    private void toggleFavourite() {
+        if (isFavourite() && !LOCATION_NOT_FOUND) {
             favourites.remove(city_loc);
-            emptyStarImage = new Image(getClass().getResourceAsStream("/icons/empty_star.png"));
-            favStar = new ImageView(emptyStarImage);
-            favStar.setFitWidth(20);
-            favStar.setFitHeight(20);
-            favButton.setGraphic(favStar);
+            updateStarImage("/icons/empty_star.png");
         }
 
-        else{
+        else if (!isFavourite() && !LOCATION_NOT_FOUND) {
             favourites.add(city_loc);
-            starImage = new Image(getClass().getResourceAsStream("/icons/star.png"));
-            favStar = new ImageView(starImage);
-            favStar.setFitWidth(20);
-            favStar.setFitHeight(20);
-            favButton.setGraphic(favStar);
-            favButton.setGraphic(favStar);
+            updateStarImage("/icons/star.png");
         }
 
         // Updating the contents of favourites dropbox
         updateFavouritesComboBox();
+    }
+
+    // Update star's color when the button is toggled
+    private void updateStarImage(String imageUrl) {
+        starImage = new Image(getClass().getResourceAsStream(imageUrl));
+        favStar.setFitWidth(20);
+        favStar.setFitHeight(20);
+        favStar.setImage(starImage);
+        favButton.setGraphic(favStar);
     }
 
     // Update location label
@@ -756,7 +771,7 @@ public class WeatherApp extends Application {
     }
 
     // This updates the feels like- text
-    private void updateFeelsText(){
+    private void updateFeelsText() {
         CurrentWeatherData todaysData = current_history.get(city_loc);
 
         if (todaysData != null) {
@@ -780,7 +795,7 @@ public class WeatherApp extends Application {
     }
 
     // This updates wind speed
-    private void updateWindSpeed(){
+    private void updateWindSpeed() {
         CurrentWeatherData todaysData = current_history.get(city_loc);
 
         if (todaysData != null) {
@@ -803,12 +818,14 @@ public class WeatherApp extends Application {
         }
     }
 
-    // This function exits the program, but also saves the existing favourites to a txt file.
+    // This function exits the program, but also saves the existing favourites to a
+    // txt file.
     private Button getQuitButton() {
         // Creating a button.
         Button button = new Button("Quit");
 
-        // Adding an event to the button to terminate the application and save favourites to a file.
+        // Adding an event to the button to terminate the application and save
+        // favourites to a file.
         button.setOnAction((ActionEvent event) -> {
             saveFavourites();
             Platform.exit();
@@ -819,35 +836,68 @@ public class WeatherApp extends Application {
 
     // This saves favourites to a txt file at the end of the session
     // It also saves current location to a seperate txt file
-    private void saveFavourites(){
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter("favourites.txt"))) {
-            for (String location : favourites){
+    // additionally, selected language is also saved
+    private void saveFavourites() {
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("last_language.txt"))) {
+                writer.write(lang);
+                writer.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("favourites.txt"))) {
+            for (String location : favourites) {
                 writer.write(location);
                 writer.newLine();
             }
 
             writer.close();
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter("last_location.txt"))) {
-            writer.write(city_loc);            
-            
-            writer.close();
-        } catch (IOException e){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("last_location.txt"))) {
+            if (!LOCATION_NOT_FOUND) {
+                writer.write(city_loc);
+                writer.close();
+            }
+
+            // If latest search was an error, set last favourite as the last search
+            else{
+                city_loc = favourites.get(0);
+                writer.write(city_loc);
+                writer.close();
+            }
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
+
+        
 
     }
 
-    // This file loads favourites from a file, and it also loads last location
-    private void loadFavourites(){
+    // This file loads favourites from a file, and it also loads last location and the language
+    private void loadFavourites() {
+
+        // Load language
+        try (BufferedReader reader = new BufferedReader(new FileReader("last_language.txt"))) {
+
+            lang = reader.readLine();
+            langBox.setValue(lang);
+            langBox.fireEvent(new ActionEvent(langBox, null));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         try (BufferedReader reader = new BufferedReader(new FileReader("favourites.txt"))) {
-            
+
             String line;
 
-            while((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 favourites.add(line);
                 // Change star icon for this
                 starImage = new Image(getClass().getResourceAsStream("/icons/star.png"));
@@ -855,46 +905,45 @@ public class WeatherApp extends Application {
                 favStar.setFitWidth(20);
                 favStar.setFitHeight(20);
                 favButton.setGraphic(favStar);
-                
+
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("last_location.txt"))){
+        try (BufferedReader reader = new BufferedReader(new FileReader("last_location.txt"))) {
 
             city_loc = reader.readLine();
 
             search();
-
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void search(){
-            // API call for weekly/current weather happens here
-            // Also a lot of other functions are activated each time search button is pressed
-            try {
-                getWeatherData(city_loc, api_key_Abu, "current");
-                updateLocLabel();
-                updateDescriptionLabel();
-                updateWeatherImage();
-                updateTemperText();
-                updateFeelsText();
-                updateWindSpeed();
-                isFavourite();
+    private void search() {
+        // API call for weekly/current weather happens here
+        // Also a lot of other functions are activated each time search button is
+        // pressed
+        try {
+            getWeatherData(city_loc, api_key_Abu, "current");
+            updateLocLabel();
+            updateDescriptionLabel();
+            updateWeatherImage();
+            updateTemperText();
+            updateFeelsText();
+            updateWindSpeed();
+            isFavourite();
 
-                // Update hourly columns
-                updateHourlyColumns();
+            // Update hourly columns
+            updateHourlyColumns();
 
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
-
 
     // Unit toggle button functionality
 
@@ -920,7 +969,7 @@ public class WeatherApp extends Application {
     // This changes language
     private ComboBox<String> langButton() {
 
-        ComboBox<String> langBox = new ComboBox<>();
+         langBox = new ComboBox<>();
         // Add options to the ComboBox
         langBox.getItems().addAll("en", "fi", "fr", "tr", "az", "zh_cn", "vi", "de", "da", "sp", "ar");
         langBox.setValue("en");
@@ -941,15 +990,15 @@ public class WeatherApp extends Application {
     // Favourites can be accessed here
     private ComboBox<String> favouritesBox = new ComboBox<>();
 
-    private ComboBox<String> favouritesDropBox(){
+    private ComboBox<String> favouritesDropBox() {
 
         // Siphon favourites here
         favouritesBox.getItems().setAll(favourites);
-        
+
         // Add selected favourite to search box
         favouritesBox.setOnAction(event -> {
             String selectedFavourite = favouritesBox.getValue();
-            if(selectedFavourite != null){
+            if (selectedFavourite != null) {
                 locField.setText(selectedFavourite);
                 locButton.fire();
 
@@ -959,13 +1008,12 @@ public class WeatherApp extends Application {
 
         return favouritesBox;
 
-
     }
 
     // This method updates the items in the ComboBox
     private void updateFavouritesComboBox() {
-    favouritesDropBox().getItems().clear();
-    favouritesDropBox().getItems().setAll(favourites);
-}
+        favouritesDropBox().getItems().clear();
+        favouritesDropBox().getItems().setAll(favourites);
+    }
 
 }

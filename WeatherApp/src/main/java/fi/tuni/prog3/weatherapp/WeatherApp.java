@@ -894,6 +894,11 @@ public class WeatherApp extends Application {
         try (BufferedReader reader = new BufferedReader(new FileReader("last_language.txt"))) {
 
             lang = reader.readLine();
+
+            if(lang == null || lang.trim().isEmpty()){
+                lang = "en";
+            }
+            
             langBox.setValue(lang);
             langBox.fireEvent(new ActionEvent(langBox, null));
 

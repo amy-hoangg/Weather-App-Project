@@ -27,7 +27,11 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -91,13 +95,14 @@ public class WeatherApp extends Application {
     private Image emptyStarImage;
     private TextField locField;
     private Button locButton;
+    private Button favButton;
 
     @Override
     public void start(Stage stage) {
         System.setProperty("file.encoding", "UTF-8"); // Needed for non-latin letters, DON'T TOUCH THIS!!!
         // Default font for this app
         def_font = Font.font("Arial", 20);
-
+        
         // Creating a new BorderPane.
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(10, 10, 10, 10));
@@ -111,7 +116,7 @@ public class WeatherApp extends Application {
         root.setBottom(quitButton);
         BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
 
-        Scene scene = new Scene(root, 600, 900);
+        Scene scene = new Scene(root, 700, 800);
         stage.setScene(scene);
         stage.setTitle("WeatherApp");
         stage.show();
@@ -209,7 +214,7 @@ public class WeatherApp extends Application {
     private HBox getTodayBox() {
 
         // Creating favourite button that will save/unsave favourite locations
-        Button favButton = new Button();
+        favButton = new Button();
         favButton.setMaxSize(20,20);
         favButton.setPadding(new Insets(10,10,10,10));
         emptyStarImage = new Image(getClass().getResourceAsStream("/icons/empty_star.png"));
@@ -218,7 +223,7 @@ public class WeatherApp extends Application {
         favStar.setFitWidth(20);
         favButton.setGraphic(favStar);
 
-        favButton.setOnAction(event -> {toggleFavourite(favButton);
+        favButton.setOnAction(event -> {toggleFavourite();
         });
 
 
@@ -370,6 +375,11 @@ public class WeatherApp extends Application {
         weatherDataBox.getChildren().addAll(locationBox, descriptionLabel, symbolBox);
         // Add the vertical box to the first big box that display's today's weather
         todayBox.getChildren().addAll(weatherDataBox, favButton);
+
+        // Load previously saved favourites
+        loadFavourites();
+        updateFavouritesComboBox();
+
 
         return todayBox;
     }
@@ -675,7 +685,7 @@ public class WeatherApp extends Application {
     }
 
     // This function adds/removes favourites from list and updates star icon
-    private void toggleFavourite(Button favButton){
+    private void toggleFavourite(){
         if(isFavourite()){
             favourites.remove(city_loc);
             emptyStarImage = new Image(getClass().getResourceAsStream("/icons/empty_star.png"));
@@ -699,7 +709,6 @@ public class WeatherApp extends Application {
         updateFavouritesComboBox();
     }
 
-
     // Update location label
     private void updateLocLabel() {
         city_locText.setFont(locFont);
@@ -714,7 +723,7 @@ public class WeatherApp extends Application {
             {
                 String rawString = todaysData.getWeather().get(0).getDescription();
 
-                if (!lang.equals("zh_cn") && !lang.equals("vi")) { // Only format if allowed
+                if (!lang.equals("zh_cn") && !lang.equals("vi") && !lang.equals("ar")) { // Only format if allowed
                     descriptionText.setText(rawString.substring(0, 1).toUpperCase() + rawString.substring(1) + ".");
                 }
 
@@ -812,17 +821,56 @@ public class WeatherApp extends Application {
         }
     }
 
+    // This function exits the program, but also saves the existing favourites to a txt file.
     private Button getQuitButton() {
         // Creating a button.
         Button button = new Button("Quit");
 
-        // Adding an event to the button to terminate the application.
+        // Adding an event to the button to terminate the application and save favourites to a file.
         button.setOnAction((ActionEvent event) -> {
+            saveFavourites();
             Platform.exit();
         });
 
         return button;
     }
+
+    // This saves favourites to a txt file at the end of the session
+    private void saveFavourites(){
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter("favourites.txt"))) {
+            for (String location : favourites){
+                writer.write(location);
+                writer.newLine();
+            }
+            writer.close();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
+        
+    }
+
+    // This file loads favourites from a file
+    private void loadFavourites(){
+        try (BufferedReader reader = new BufferedReader(new FileReader("favourites.txt"))) {
+            
+            String line;
+
+            while((line = reader.readLine()) != null) {
+                favourites.add(line);
+                // Change star icon for this
+                starImage = new Image(getClass().getResourceAsStream("/icons/star.png"));
+                favStar = new ImageView(starImage);
+                favStar.setFitWidth(20);
+                favStar.setFitHeight(20);
+                favButton.setGraphic(favStar);
+                favButton.setGraphic(favStar);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
 
     // Unit toggle button functionality
 
@@ -850,7 +898,7 @@ public class WeatherApp extends Application {
 
         ComboBox<String> langBox = new ComboBox<>();
         // Add options to the ComboBox
-        langBox.getItems().addAll("en", "fi", "fr", "tr", "az", "zh_cn", "vi", "de", "da", "sp");
+        langBox.getItems().addAll("en", "fi", "fr", "tr", "az", "zh_cn", "vi", "de", "da", "sp", "ar");
         langBox.setValue("en");
 
         lang = langBox.getValue();

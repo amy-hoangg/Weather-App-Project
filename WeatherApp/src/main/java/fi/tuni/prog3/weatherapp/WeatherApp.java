@@ -840,8 +840,8 @@ public class WeatherApp extends Application {
     private void saveFavourites() {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("last_language.txt"))) {
-                writer.write(lang);
-                writer.close();
+            writer.write(lang);
+            writer.close();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -865,21 +865,29 @@ public class WeatherApp extends Application {
             }
 
             // If latest search was an error, set last favourite as the last search
-            else{
-                city_loc = favourites.get(0);
-                writer.write(city_loc);
-                writer.close();
-            }
+            else {
+                if (!favourites.isEmpty()) {
+                    city_loc = favourites.get(0);
+                    writer.write(city_loc);
+                    writer.close();
+                }
 
-        } catch (IOException e) {
+                else {
+                    city_loc = "";
+                    writer.write(city_loc);
+                    writer.close();
+                }
+            }
+        }
+
+        catch (IOException e) {
             e.printStackTrace();
         }
 
-        
-
     }
 
-    // This file loads favourites from a file, and it also loads last location and the language
+    // This file loads favourites from a file, and it also loads last location and
+    // the language
     private void loadFavourites() {
 
         // Load language
@@ -969,7 +977,7 @@ public class WeatherApp extends Application {
     // This changes language
     private ComboBox<String> langButton() {
 
-         langBox = new ComboBox<>();
+        langBox = new ComboBox<>();
         // Add options to the ComboBox
         langBox.getItems().addAll("en", "fi", "fr", "tr", "az", "zh_cn", "vi", "de", "da", "sp", "ar");
         langBox.setValue("en");

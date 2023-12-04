@@ -184,16 +184,30 @@ public class WeatherApp extends Application {
             }
         });
 
+        // EMpty favourites-button
+        Button clearFavs = new Button("Clear favourites");
+        clearFavs.setMinWidth(60);
+
+        clearFavs.setOnAction(event -> {
+            favourites.clear();
+            updateFavouritesComboBox();
+            isFavourite();
+        });
+
+
+
         // Adjusting favourites dropbox size and other visual adjusting
         favouritesDropBox().setMinWidth(50);
         favouritesDropBox().setPromptText("Favourites");
         Region spacer = new Region();
+        Region spacer2 = new Region();
         HBox.setMargin(locField, new Insets(0, 10, 0, 0));
         HBox.setMargin(spacer, new Insets(0, 280, 0, 0));
+        HBox.setMargin(spacer2, new Insets(0, 30, 0, 0));
         HBox.setMargin(unitButton, new Insets(0, 10, 0, 5));
         HBox.setMargin(favouritesDropBox(), new Insets(0, 10, 0, 10));
 
-        topHBox.getChildren().addAll(unitButton, locField, locButton, favouritesDropBox(), langButton());
+        topHBox.getChildren().addAll(unitButton, locField, locButton, favouritesDropBox(), langButton(), spacer2, clearFavs);
 
         return topHBox;
     }
@@ -867,7 +881,7 @@ public class WeatherApp extends Application {
             // If latest search was an error, set last favourite as the last search
             else {
                 if (!favourites.isEmpty()) {
-                    city_loc = favourites.get(0);
+                    city_loc = favourites.get(favourites.size()-1);
                     writer.write(city_loc);
                     writer.close();
                 }

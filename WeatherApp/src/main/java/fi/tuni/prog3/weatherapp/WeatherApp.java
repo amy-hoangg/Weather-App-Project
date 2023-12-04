@@ -168,25 +168,7 @@ public class WeatherApp extends Application {
         locButton.setOnAction(event -> {
             city_loc = locField.getText();
 
-            // API call for weekly/current weather happens here
-            // Also a lot of other functions are activated each time search button is pressed
-            try {
-                getWeatherData(city_loc, api_key_Abu, "current");
-                updateLocLabel();
-                updateDescriptionLabel();
-                updateWeatherImage();
-                updateTemperText();
-                updateFeelsText();
-                updateWindSpeed();
-                isFavourite();
-
-                // Update hourly columns
-                updateHourlyColumns();
-
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            search();
 
         });
 
@@ -836,21 +818,30 @@ public class WeatherApp extends Application {
     }
 
     // This saves favourites to a txt file at the end of the session
+    // It also saves current location to a seperate txt file
     private void saveFavourites(){
         try(BufferedWriter writer = new BufferedWriter(new FileWriter("favourites.txt"))) {
             for (String location : favourites){
                 writer.write(location);
                 writer.newLine();
             }
+
             writer.close();
         } catch (IOException e){
             e.printStackTrace();
         }
 
-        
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter("last_location.txt"))) {
+            writer.write(city_loc);            
+            
+            writer.close();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+
     }
 
-    // This file loads favourites from a file
+    // This file loads favourites from a file, and it also loads last location
     private void loadFavourites(){
         try (BufferedReader reader = new BufferedReader(new FileReader("favourites.txt"))) {
             
@@ -864,11 +855,44 @@ public class WeatherApp extends Application {
                 favStar.setFitWidth(20);
                 favStar.setFitHeight(20);
                 favButton.setGraphic(favStar);
-                favButton.setGraphic(favStar);
+                
             }
         } catch (IOException e){
             e.printStackTrace();
         }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("last_location.txt"))){
+
+            city_loc = reader.readLine();
+
+            search();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void search(){
+            // API call for weekly/current weather happens here
+            // Also a lot of other functions are activated each time search button is pressed
+            try {
+                getWeatherData(city_loc, api_key_Abu, "current");
+                updateLocLabel();
+                updateDescriptionLabel();
+                updateWeatherImage();
+                updateTemperText();
+                updateFeelsText();
+                updateWindSpeed();
+                isFavourite();
+
+                // Update hourly columns
+                updateHourlyColumns();
+
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
     }
 
 

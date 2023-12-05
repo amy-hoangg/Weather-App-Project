@@ -22,6 +22,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -470,7 +471,7 @@ public class WeatherApp extends Application {
     }
 
     private ScrollPane getBottomScrollPane() {
-        bottomHBox.setPrefHeight(300);
+        bottomHBox.setPrefHeight(250);
         bottomHBox.setStyle("-fx-background-color: white;");
 
         bottomHBox.setSpacing(10);
@@ -562,6 +563,13 @@ public class WeatherApp extends Application {
         Label tempLabel = new Label(temperature);
         Label windLabel = new Label(windSpeed);
         Label humidityLabel = new Label(humidity);
+
+        // Set font and style
+        Font labelFont = Font.font("Montserrat", FontWeight.MEDIUM, FontPosture.REGULAR, 15);
+        hourLabel.setFont(labelFont);
+        tempLabel.setFont(labelFont);
+        windLabel.setFont(labelFont);
+        humidityLabel.setFont(labelFont);
 
         // Add labels to VBox
         hourColumn.getChildren().addAll(hourLabel, weatherIconView, tempLabel, windLabel, humidityLabel);

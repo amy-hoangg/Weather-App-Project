@@ -127,6 +127,9 @@ public class WeatherApp extends Application {
         stage.setScene(scene);
         stage.setTitle("WeatherApp");
         stage.show();
+
+        // Connecting X-button to quit-button
+        stage.setOnCloseRequest(event -> quitButton.fire());
     }
 
     public static void main(String[] args) {

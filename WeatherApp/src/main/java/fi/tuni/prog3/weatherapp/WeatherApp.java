@@ -16,6 +16,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -121,7 +122,7 @@ public class WeatherApp extends Application {
         root.setBottom(quitButton);
         BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
 
-        Scene scene = new Scene(root, 700, 800);
+        Scene scene = new Scene(root, 700, 900);
         stage.setScene(scene);
         stage.setTitle("WeatherApp");
         stage.show();
@@ -469,23 +470,29 @@ public class WeatherApp extends Application {
     }
 
     private ScrollPane getBottomScrollPane() {
-        bottomHBox.setPrefHeight(200);
+        bottomHBox.setPrefHeight(300);
         bottomHBox.setStyle("-fx-background-color: white;");
 
         bottomHBox.setSpacing(10);
-        bottomHBox.setAlignment(Pos.CENTER);
+        bottomHBox.setPadding(new Insets(10,5,0,5));
+        // bottomHBox.setAlignment(Pos.CENTER);
 
         // Add scrollbar to bottom to scroll through hours
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(bottomHBox);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         return scrollPane;
     }
 
     private VBox createHourColumn(int index, String city, HourlyWeatherData hourlyWeatherData) {
         VBox hourColumn = new VBox();
-        hourColumn.setAlignment(Pos.CENTER);
+        hourColumn.setAlignment(Pos.TOP_CENTER);
+        hourColumn.setMaxHeight(10);
+        hourColumn.setSpacing(10);
+        VBox.setVgrow(hourColumn, Priority.NEVER);
+        //hourColumn.setPadding(new Insets(5,5,5,5));
 
         String temperature = "ERROR";
         String windSpeed = "ERROR";

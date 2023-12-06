@@ -18,10 +18,10 @@ public interface iAPI {
     public String getWeatherData();
 
     /**
-     * Returns a forecast for the given coordinates.
-     * @param lat The latitude of the location.
-     * @param lon The longitude of the location.
-     * @return String.
+     * Performs a search for a location's weather data, and updates all the necessary variables with seperate methods.
+     * @returns nothing
      */
-    public String getForecast(double lat, double lon);
+    public void search();
+
+
 }

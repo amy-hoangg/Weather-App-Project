@@ -11,19 +11,11 @@ package fi.tuni.prog3.weatherapp;
 public interface iAPI {
     
     /**
-     * Returns coordinates for a location and returns weather data as a Wetaherdata-type object based on parameter.
-     * @param loc Name of the location for which coordinates should be fetched.
+     * Returns weather data as a Wetaherdata-type object based on location that is saved during app runtime.
+     * @param loc Name of the location for which data should be fetched.
      * @return String.
      */
-    public String lookUpLocation(String loc);
-    
-    /**
-     * Returns the current weather for the given coordinates.
-     * @param lat The latitude of the location.
-     * @param lon The longitude of the location.
-     * @return String.
-     */
-    public String getCurrentWeather(double lat, double lon);
+    public String getWeatherData();
 
     /**
      * Returns a forecast for the given coordinates.

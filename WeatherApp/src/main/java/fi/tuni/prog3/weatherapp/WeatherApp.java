@@ -70,7 +70,9 @@ public class WeatherApp extends Application {
     // memory usage
     private static Image placeholderImage;
 
+    // Favourites are stored in these
     List<String> favourites = new ArrayList<String>();
+    private ComboBox<String> favouritesBox = favouritesDropBox();
 
     private static String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
 
@@ -188,7 +190,7 @@ public class WeatherApp extends Application {
             }
         });
 
-        // EMpty favourites-button
+        // Empty favourites-button
         Button clearFavs = new Button("Clear favourites");
         clearFavs.setMinWidth(60);
 
@@ -196,6 +198,8 @@ public class WeatherApp extends Application {
             favourites.clear();
             updateFavouritesComboBox();
             isFavourite();
+
+            updateFavBoxText();
         });
 
         // Adjusting favourites dropbox size and other visual adjusting
@@ -382,24 +386,24 @@ public class WeatherApp extends Application {
     private HBox getSecondNavBar() {
         HBox secondNavBar = new HBox(); // Create an HBox for the second navigation bar
         secondNavBar.setAlignment(Pos.CENTER_LEFT);
-        //secondNavBar.setSpacing(10);
-        //secondNavBar.setPadding(new Insets(5, 10, 5, 10));
+        // secondNavBar.setSpacing(10);
+        // secondNavBar.setPadding(new Insets(5, 10, 5, 10));
         secondNavBar.setMinHeight(Control.USE_PREF_SIZE); // Set minimum height to prefer size
-    
+
         Button forecastButton = new Button("Forecast");
         Button historyButton = new Button("History");
         Button mapButton = new Button("Map");
-    
+
         forecastButton.setOnAction(e -> showForecastContent());
         mapButton.setOnAction(e -> showMapContent());
         historyButton.setOnAction(e -> showHistoryContent());
-    
+
         // Add buttons to the HBox
         secondNavBar.getChildren().addAll(forecastButton, historyButton, mapButton);
-    
+
         return secondNavBar;
     }
-    
+
     private ScrollPane getMiddleScrollPane() {
         dailyHbox.setPrefHeight(300);
         dailyHbox.setStyle("-fx-background-color: white;");
@@ -521,7 +525,7 @@ public class WeatherApp extends Application {
         middleScrollPane.setContent(mapContent);
     }
 
-private String getHTMLContent(String city) {
+    private String getHTMLContent(String city) {
         String htmlContent = "<!DOCTYPE html>\n" +
                 "<html>\n" +
                 "<head>\n" +
@@ -592,7 +596,6 @@ private String getHTMLContent(String city) {
 
         return htmlContent;
     }
-
 
     private void showHistoryContent() {
     }
@@ -914,6 +917,9 @@ private String getHTMLContent(String city) {
 
         // Updating the contents of favourites dropbox
         updateFavouritesComboBox();
+
+        // This updates the text in case box is emptied
+        updateFavBoxText();
     }
 
     private void updateStarImage(String imageUrl) {
@@ -1173,6 +1179,8 @@ private String getHTMLContent(String city) {
                 unitButton.setText("Imperial");
                 unit = "imperial";
             }
+
+            search();
         });
 
         return unitButton;
@@ -1193,18 +1201,20 @@ private String getHTMLContent(String city) {
             public void handle(ActionEvent event) {
                 lang = langBox.getValue();
 
+                search();
+
             }
         });
 
         return langBox;
     }
 
-    private ComboBox<String> favouritesBox = new ComboBox<>();
-
     private ComboBox<String> favouritesDropBox() {
 
-        // Siphon favourites here
-        favouritesBox.getItems().setAll(favourites);
+        // Initialize favouritesBox only if it's not already initialized
+        if (favouritesBox == null) {
+            favouritesBox = new ComboBox<>();
+        }
 
         // Add selected favourite to search box
         favouritesBox.setOnAction(event -> {
@@ -1212,10 +1222,14 @@ private String getHTMLContent(String city) {
             if (selectedFavourite != null) {
                 locField.setText(selectedFavourite);
                 locButton.fire();
-
             }
 
         });
+
+        if (favouritesBox.getItems().isEmpty()) {
+            // Siphon favourites here
+            favouritesBox.getItems().setAll(favourites);
+        }
 
         return favouritesBox;
 
@@ -1225,6 +1239,18 @@ private String getHTMLContent(String city) {
     private void updateFavouritesComboBox() {
         favouritesDropBox().getItems().clear();
         favouritesDropBox().getItems().setAll(favourites);
+
+        // This updates the text in case box is emptied
+        updateFavBoxText();
+    }
+
+    // This method updates the favoruites combobox text if it is
+    private void updateFavBoxText() {
+
+        if (favouritesBox.getItems().isEmpty() || favourites.isEmpty()) {
+            favouritesBox.setPromptText("Favourites");
+        }
+
     }
 
 }

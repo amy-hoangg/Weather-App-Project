@@ -1239,17 +1239,12 @@ public class WeatherApp extends Application {
     private void updateFavouritesComboBox() {
         favouritesDropBox().getItems().clear();
         favouritesDropBox().getItems().setAll(favourites);
-
-        // This updates the text in case box is emptied
-        updateFavBoxText();
     }
 
     // This method updates the favoruites combobox text if it is
     private void updateFavBoxText() {
 
-        if (favouritesBox.getItems().isEmpty() || favourites.isEmpty()) {
-            favouritesBox.setPromptText("Favourites");
-        }
+        favouritesBox.setPromptText("Favourites");
 
     }
 

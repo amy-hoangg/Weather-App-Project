@@ -9,6 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -22,8 +23,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontSmoothingType;
 import javafx.scene.text.FontWeight;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -32,11 +34,14 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,9 +49,6 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 
-/**
- * JavaFX Sisu
- */
 public class WeatherApp extends Application {
 
     String unit = "metric";
@@ -58,7 +60,7 @@ public class WeatherApp extends Application {
     // Container for current city weather data
     Map<String, CurrentWeatherData> current_history = new HashMap<>();
     Map<String, HourlyWeatherData> hourly_history = new HashMap<>();
-    // Map<String, DailyWeatherData> daily_history = new HashMap<>();
+    Map<String, DailyWeatherData> daily_history = new HashMap<>();
 
     // Container for cached images to reduce memory usage
     // The key is the weather status icon id (for example "04n")
@@ -73,6 +75,8 @@ public class WeatherApp extends Application {
     private static String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
 
     private HBox bottomHBox = new HBox();
+    private HBox dailyHbox = new HBox();
+    private ScrollPane middleScrollPane = new ScrollPane();
 
     // Different variables
     private String response;
@@ -137,7 +141,6 @@ public class WeatherApp extends Application {
         launch();
     }
 
-    // Initialize placeholder image
     private static void initImages() {
         placeholderImage = new Image(WeatherApp.class.getResourceAsStream("/weather_types/placeholder.gif"));
     }
@@ -147,13 +150,13 @@ public class WeatherApp extends Application {
         VBox centerHBox = new VBox(10);
 
         // Add all boxes and scrollpane to centerbox
-        centerHBox.getChildren().addAll(getTopButtonBox(), getTodayBox(),
-                getMiddleBox(), getBottomScrollPane(), getBottomVBox());
+        centerHBox.getChildren().addAll(getFirstNavBar(), getTodayBox(), getSecondNavBar(),
+                getMiddleScrollPane(), getBottomScrollPane(), getBottomVBox());
 
         return centerHBox;
     }
 
-    private HBox getTopButtonBox() {
+    private HBox getFirstNavBar() {
         // Creating top box for buttons
         HBox topHBox = new HBox();
         topHBox.setPadding(new Insets(5, 5, 0, 5));
@@ -165,13 +168,9 @@ public class WeatherApp extends Application {
         Button unitButton = getUnitToggleButton();
         unitButton.setMinWidth(60);
 
-        // Adding search for location textbox
-
         locField = new TextField();
         locField.setMaxWidth(100);
         locField.setPromptText("Enter your city: ");
-
-        // Location search button
 
         locButton = new Button("Search for city");
 
@@ -199,8 +198,6 @@ public class WeatherApp extends Application {
             isFavourite();
         });
 
-
-
         // Adjusting favourites dropbox size and other visual adjusting
         favouritesDropBox().setMinWidth(50);
         favouritesDropBox().setPromptText("Favourites");
@@ -212,7 +209,8 @@ public class WeatherApp extends Application {
         HBox.setMargin(unitButton, new Insets(0, 10, 0, 5));
         HBox.setMargin(favouritesDropBox(), new Insets(0, 10, 0, 10));
 
-        topHBox.getChildren().addAll(unitButton, locField, locButton, favouritesDropBox(), langButton(), spacer2, clearFavs);
+        topHBox.getChildren().addAll(unitButton, locField, locButton, favouritesDropBox(), langButton(), spacer2,
+                clearFavs);
 
         return topHBox;
     }
@@ -235,7 +233,7 @@ public class WeatherApp extends Application {
 
         // Creating a HBox for today's weather.
         HBox todayBox = new HBox();
-        todayBox.setPrefHeight(350);
+        todayBox.setPrefHeight(300);
         todayBox.setStyle("-fx-background-color: #FFFFFF;");
 
         // Creating vertical box that will store location, temperature, weather
@@ -260,11 +258,7 @@ public class WeatherApp extends Application {
         todaysWeather.setStroke(Color.BLACK);
         todaysWeather.setFill(Color.BLACK);
         todaysWeather.setStrokeWidth(0.5);
-        // Shadow effects
 
-        // Extra text effect
-
-        // Change label looks
         topBoxTitle.setTextFill(Color.SKYBLUE);
         topBoxTitle.setMinWidth(169);
         topBoxTitle.setGraphic(todaysWeather);
@@ -385,33 +379,222 @@ public class WeatherApp extends Application {
         return todayBox;
     }
 
-    private ScrollPane getMiddleBox() {
-        // Creating a ScrollPane for the HBox.
-        ScrollPane middleBox = new ScrollPane();
-        middleBox.setPrefHeight(330);
-        middleBox.setStyle("-fx-background-color: #b1c2d4;");
-        middleBox.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Set horizontal scrollbar always visible
-
-        // Creating an HBox for the right side.
-        HBox rightHBox = new HBox();
-
-        // Creating forecast button
+    private HBox getSecondNavBar() {
+        HBox secondNavBar = new HBox(); // Create an HBox for the second navigation bar
+        secondNavBar.setAlignment(Pos.CENTER_LEFT);
+        //secondNavBar.setSpacing(10);
+        //secondNavBar.setPadding(new Insets(5, 10, 5, 10));
+        secondNavBar.setMinHeight(Control.USE_PREF_SIZE); // Set minimum height to prefer size
+    
         Button forecastButton = new Button("Forecast");
-        HBox.setMargin(forecastButton, new Insets(5, 10, 5, 10));
-
-        // Creating history button
         Button historyButton = new Button("History");
-        HBox.setMargin(historyButton, new Insets(5, 10, 5, 0));
-
-        // Creating map button
         Button mapButton = new Button("Map");
-        HBox.setMargin(mapButton, new Insets(5, 10, 5, 0));
+    
+        forecastButton.setOnAction(e -> showForecastContent());
+        mapButton.setOnAction(e -> showMapContent());
+        historyButton.setOnAction(e -> showHistoryContent());
+    
+        // Add buttons to the HBox
+        secondNavBar.getChildren().addAll(forecastButton, historyButton, mapButton);
+    
+        return secondNavBar;
+    }
+    
+    private ScrollPane getMiddleScrollPane() {
+        dailyHbox.setPrefHeight(300);
+        dailyHbox.setStyle("-fx-background-color: white;");
+        dailyHbox.setSpacing(10);
+        dailyHbox.setPadding(new Insets(10, 5, 0, 5));
 
-        rightHBox.getChildren().addAll(forecastButton, historyButton, mapButton);
+        middleScrollPane.setContent(dailyHbox);
+        middleScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        middleScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        middleBox.setContent(rightHBox); // Set HBox as content of ScrollPane
+        return middleScrollPane;
+    }
 
-        return middleBox;
+    private VBox createDayColumn(int index, String city, DailyWeatherData dailyWeatherData) {
+        VBox dayColumn = new VBox();
+        dayColumn.setAlignment(Pos.TOP_CENTER);
+        dayColumn.setSpacing(10);
+        VBox.setVgrow(dayColumn, Priority.NEVER);
+
+        String temperatureMin;
+        String temperatureMax;
+        String dayOfWeek;
+        String dayOfMonth;
+
+        DailyWeatherData.WeatherData currentDayWeatherData = dailyWeatherData.getList().get(index);
+
+        // Extracting day information from timestamp
+        long timestamp = currentDayWeatherData.getDt();
+        Instant instant = Instant.ofEpochSecond(timestamp);
+        ZoneId zoneId = ZoneId.of("GMT"); // Adjust timezone if necessary
+        LocalDateTime dateTime = LocalDateTime.ofInstant(instant, zoneId);
+        dayOfWeek = dateTime.getDayOfWeek().toString();
+        dayOfMonth = dateTime.format(DateTimeFormatter.ofPattern("d.M"));
+
+        // Get temperature details
+        temperatureMin = String.format("%.0f°C", currentDayWeatherData.getTemp().getMin());
+        temperatureMax = String.format("%.0f°C", currentDayWeatherData.getTemp().getMax());
+
+        // Get weather status
+        String weatherStatus = "No data"; // Default value
+        List<DailyWeatherData.Weather> weatherList = currentDayWeatherData.getWeather();
+        if (!weatherList.isEmpty()) {
+            weatherStatus = weatherList.get(0).getDescription();
+
+            // Retrieve the weather icon for the status
+            String weatherIcon = weatherList.get(0).getIcon();
+            Image weatherImage = imageCache.get(weatherIcon);
+            if (weatherImage == null) {
+                String imagePath = "/weather_types/" + weatherIcon + ".gif";
+                weatherImage = new Image(getClass().getResourceAsStream(imagePath));
+                imageCache.put(weatherIcon, weatherImage); // Cache the image
+            }
+
+            ImageView weatherIconView = new ImageView(weatherImage);
+            weatherIconView.setFitHeight(25); // Set the height as needed
+            weatherIconView.setFitWidth(25); // Set the width as needed
+            dayColumn.getChildren().add(weatherIconView);
+        }
+
+        // Elements to display weather data
+        Label dayOfWeekLabel = new Label(dayOfWeek);
+        Label dayOfMonthLabel = new Label(dayOfMonth);
+        Label minTempLabel = new Label("Min: " + temperatureMin);
+        Label maxTempLabel = new Label("Max: " + temperatureMax);
+        Label weatherStatusLabel = new Label(weatherStatus);
+
+        // Set font and style
+        Font labelFont = Font.font("Montserrat", FontWeight.MEDIUM, FontPosture.REGULAR, 15);
+        dayOfWeekLabel.setFont(labelFont);
+        dayOfMonthLabel.setFont(labelFont);
+        minTempLabel.setFont(labelFont);
+        maxTempLabel.setFont(labelFont);
+        weatherStatusLabel.setFont(labelFont);
+
+        // Add labels to VBox
+        dayColumn.getChildren().addAll(dayOfWeekLabel, dayOfMonthLabel, minTempLabel, maxTempLabel, weatherStatusLabel);
+
+        return dayColumn;
+    }
+
+    private void updateDailyColumns() {
+        dailyHbox.getChildren().clear();
+
+        DailyWeatherData dailyWeatherData;
+        try {
+            // Call the getWeatherData function to retrieve daily weather data
+            response = getWeatherData(city_loc, api_key_Abu, "daily");
+
+            // Parse the response and handle the data as needed
+            Gson gson = new Gson();
+            dailyWeatherData = gson.fromJson(response, DailyWeatherData.class);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (city_loc != null) {
+            // Create a column for each day
+            for (int i = 0; i < 7; i++) {
+                VBox dayColumn = createDayColumn(i, city_loc, dailyWeatherData);
+                dailyHbox.getChildren().add(dayColumn);
+            }
+        }
+    }
+
+    private void showForecastContent() {
+        middleScrollPane.setContent(dailyHbox);
+    }
+
+    private void showMapContent() {
+        WebView webView = new WebView();
+        WebEngine webEngine = webView.getEngine();
+        webEngine.loadContent(getHTMLContent(city_loc));
+
+        VBox mapContent = new VBox(webView);
+        mapContent.setPrefHeight(250);
+
+        middleScrollPane.setContent(mapContent);
+    }
+
+private String getHTMLContent(String city) {
+        String htmlContent = "<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "<head>\n" +
+                "  <title>OpenWeatherMap and OpenStreetMap</title>\n" +
+                "  <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.7.1/dist/leaflet.css\" />\n" +
+                "  <style>\n" +
+                "    #map {\n" +
+                "      height: 80vh; /* Adjust as needed */\n" +
+                "      width: 100%;\n" +
+                "    }\n" +
+                "    .button-container {\n" +
+                "      position: absolute;\n" +
+                "      top: 10px;\n" +
+                "      left: 10px;\n" +
+                "      z-index: 1000;\n" +
+                "      background-color: white;\n" +
+                "      padding: 5px;\n" +
+                "      border-radius: 5px;\n" +
+                "      box-shadow: 0 2px 5px rgba(0,0,0,0.2);\n" +
+                "    }\n" +
+                "  </style>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "<div id=\"map\"></div>\n" +
+                "<div class=\"button-container\">\n" +
+                "  <select id=\"layer-select\">\n" +
+                "    <option value=\"temp_new\">Temperature</option>\n" +
+                "    <option value=\"clouds_new\">Clouds</option>\n" +
+                "    <option value=\"precipitation_new\">Precipitation</option>\n" +
+                "    <!-- Add other options for different layers -->\n" +
+                "  </select>\n" +
+                "</div>\n" +
+                "<script src=\"https://unpkg.com/leaflet@1.7.1/dist/leaflet.js\"></script>\n" +
+                "<script>\n" +
+                "  var map = L.map('map').setView([0, 0], 2); // Set the initial view\n" +
+                "  var currentLayer;\n" +
+                "  var layerSelect = document.getElementById('layer-select');\n" +
+                "  layerSelect.addEventListener('change', function() {\n" +
+                "    var selectedLayer = layerSelect.value;\n" +
+                "    if (currentLayer) {\n" +
+                "      map.removeLayer(currentLayer);\n" +
+                "    }\n" +
+                "    currentLayer = L.tileLayer('https://tile.openweathermap.org/map/' + selectedLayer + '/{z}/{x}/{y}.png?appid="
+                + api_key_Abu + "', {\n" +
+                "      attribution: 'Map data &copy; <a href=\"https://openweathermap.org\">OpenWeatherMap</a>'\n" +
+                "    }).addTo(map);\n" +
+                "  });\n" +
+                "  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {\n" +
+                "    maxZoom: 19,\n" +
+                "    attribution: '© OpenStreetMap contributors'\n" +
+                "  }).addTo(map);\n" +
+                "  var city = '" + city + "';\n" + // Get the city/location from input
+                "  var url = 'https://api.openweathermap.org/data/2.5/weather?q=' + city + '&appid=" + api_key_Abu
+                + "';\n" +
+                "  fetch(url)\n" +
+                "    .then(response => response.json())\n" +
+                "    .then(data => {\n" +
+                "      var lat = data.coord.lat;\n" +
+                "      var lon = data.coord.lon;\n" +
+                "      map.setView([lat, lon], 10); // Set map view to the coordinates of the searched location\n" +
+                "      L.marker([lat, lon]).addTo(map)\n" +
+                "        .bindPopup('<b>" + city
+                + "</b><br>Temperature: ' + (data.main.temp - 273.15).toFixed(2) + '°C').openPopup();\n" +
+                "    });\n" +
+                "</script>\n" +
+                "</body>\n" +
+                "</html>";
+
+        return htmlContent;
+    }
+
+
+    private void showHistoryContent() {
     }
 
     private VBox getBottomVBox() {
@@ -478,7 +661,7 @@ public class WeatherApp extends Application {
         bottomHBox.setStyle("-fx-background-color: white;");
 
         bottomHBox.setSpacing(10);
-        bottomHBox.setPadding(new Insets(10,5,0,5));
+        bottomHBox.setPadding(new Insets(10, 5, 0, 5));
         // bottomHBox.setAlignment(Pos.CENTER);
 
         // Add scrollbar to bottom to scroll through hours
@@ -496,7 +679,7 @@ public class WeatherApp extends Application {
         hourColumn.setMaxHeight(10);
         hourColumn.setSpacing(10);
         VBox.setVgrow(hourColumn, Priority.NEVER);
-        //hourColumn.setPadding(new Insets(5,5,5,5));
+        // hourColumn.setPadding(new Insets(5,5,5,5));
 
         String temperature = "ERROR";
         String windSpeed = "ERROR";
@@ -599,7 +782,6 @@ public class WeatherApp extends Application {
         }
 
         if (city_loc != null) {
-            // Create a column for each hour
             for (int i = 0; i < 24; i++) {
                 VBox hourColumn = createHourColumn(i, city_loc, hourlyWeatherData);
                 bottomHBox.getChildren().add(hourColumn);
@@ -608,16 +790,18 @@ public class WeatherApp extends Application {
 
     }
 
-    private String getWeatherData(String city, String apikey, String timespan) throws IOException {
+    private String getWeatherData(String city, String api_key_Abu, String timespan) throws IOException {
         String apiUrl;
         if (timespan.equals("hourly")) {
-            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/hourly?q=" + city + "&appid=" + apikey
+            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/hourly?q=" + city + "&appid=" + api_key_Abu
                     + "&units=" + unit + "&lang=" + lang;
         } else if (timespan == "daily") {
-            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?q=" + city + "&appid=" + apikey + "&units="
+            apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?q=" + city + "&appid=" + api_key_Abu
+                    + "&units="
                     + unit + "&lang=" + lang;
         } else {
-            apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apikey + "&units=" + unit
+            apiUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + api_key_Abu + "&units="
+                    + unit
                     + "&lang=" + lang;
         }
 
@@ -626,7 +810,7 @@ public class WeatherApp extends Application {
         // Opening HTML connection
         URLConnection connection = (HttpURLConnection) url.openConnection();
 
-        connection.setRequestProperty(apikey, apiUrl);
+        connection.setRequestProperty(api_key_Abu, apiUrl);
 
         // Check for possible errors
         int responseCode = ((HttpURLConnection) connection).getResponseCode();
@@ -665,7 +849,12 @@ public class WeatherApp extends Application {
             }
 
             else if (timespan.equals("daily")) {
-                // TODO: Handle daily weather data parsing
+
+                // If daily weather:
+                DailyWeatherData dailyWeatherData = gson.fromJson(response, DailyWeatherData.class);
+
+                // Saving generated dailyWeatherData object to a container for later accessing
+                daily_history.put(dailyWeatherData.getCity().getName(), dailyWeatherData);
             }
 
             else {
@@ -702,7 +891,6 @@ public class WeatherApp extends Application {
         }
     }
 
-    // Check whether location is in favourites
     private boolean isFavourite() {
         if (favourites.contains(city_loc)) {
             updateStarImage("/icons/star.png");
@@ -713,7 +901,6 @@ public class WeatherApp extends Application {
         }
     }
 
-    // This function adds/removes favourites from list and updates star icon
     private void toggleFavourite() {
         if (isFavourite() && !LOCATION_NOT_FOUND) {
             favourites.remove(city_loc);
@@ -729,7 +916,6 @@ public class WeatherApp extends Application {
         updateFavouritesComboBox();
     }
 
-    // Update star's color when the button is toggled
     private void updateStarImage(String imageUrl) {
         starImage = new Image(getClass().getResourceAsStream(imageUrl));
         favStar.setFitWidth(20);
@@ -738,13 +924,11 @@ public class WeatherApp extends Application {
         favButton.setGraphic(favStar);
     }
 
-    // Update location label
     private void updateLocLabel() {
         city_locText.setFont(locFont);
         city_locText.setText(city_loc);
     }
 
-    // Update description label
     private void updateDescriptionLabel() {
         CurrentWeatherData todaysData = current_history.get(city_loc);
 
@@ -764,7 +948,6 @@ public class WeatherApp extends Application {
         }
     }
 
-    // Update temperature
     void updateTemperText() {
         CurrentWeatherData todaysData = current_history.get(city_loc);
 
@@ -788,7 +971,6 @@ public class WeatherApp extends Application {
         }
     }
 
-    // This updates the gif of current weather
     private void updateWeatherImage() {
         CurrentWeatherData todaysData = current_history.get(city_loc);
 
@@ -802,7 +984,6 @@ public class WeatherApp extends Application {
         }
     }
 
-    // This updates the feels like- text
     private void updateFeelsText() {
         CurrentWeatherData todaysData = current_history.get(city_loc);
 
@@ -826,7 +1007,6 @@ public class WeatherApp extends Application {
         }
     }
 
-    // This updates wind speed
     private void updateWindSpeed() {
         CurrentWeatherData todaysData = current_history.get(city_loc);
 
@@ -850,8 +1030,6 @@ public class WeatherApp extends Application {
         }
     }
 
-    // This function exits the program, but also saves the existing favourites to a
-    // txt file.
     private Button getQuitButton() {
         // Creating a button.
         Button button = new Button("Quit");
@@ -866,9 +1044,6 @@ public class WeatherApp extends Application {
         return button;
     }
 
-    // This saves favourites to a txt file at the end of the session
-    // It also saves current location to a seperate txt file
-    // additionally, selected language is also saved
     private void saveFavourites() {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("last_language.txt"))) {
@@ -899,7 +1074,7 @@ public class WeatherApp extends Application {
             // If latest search was an error, set last favourite as the last search
             else {
                 if (!favourites.isEmpty()) {
-                    city_loc = favourites.get(favourites.size()-1);
+                    city_loc = favourites.get(favourites.size() - 1);
                     writer.write(city_loc);
                     writer.close();
                 }
@@ -918,8 +1093,6 @@ public class WeatherApp extends Application {
 
     }
 
-    // This file loads favourites from a file, and it also loads last location and
-    // the language
     private void loadFavourites() {
 
         // Load language
@@ -927,10 +1100,10 @@ public class WeatherApp extends Application {
 
             lang = reader.readLine();
 
-            if(lang == null || lang.trim().isEmpty()){
+            if (lang == null || lang.trim().isEmpty()) {
                 lang = "en";
             }
-            
+
             langBox.setValue(lang);
             langBox.fireEvent(new ActionEvent(langBox, null));
 
@@ -968,9 +1141,6 @@ public class WeatherApp extends Application {
     }
 
     private void search() {
-        // API call for weekly/current weather happens here
-        // Also a lot of other functions are activated each time search button is
-        // pressed
         try {
             getWeatherData(city_loc, api_key_Abu, "current");
             updateLocLabel();
@@ -983,14 +1153,12 @@ public class WeatherApp extends Application {
 
             // Update hourly columns
             updateHourlyColumns();
+            updateDailyColumns();
 
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
-
-    // Unit toggle button functionality
 
     private Button getUnitToggleButton() {
         Button unitButton = new Button("Metric");
@@ -1011,7 +1179,6 @@ public class WeatherApp extends Application {
 
     }
 
-    // This changes language
     private ComboBox<String> langButton() {
 
         langBox = new ComboBox<>();
@@ -1032,7 +1199,6 @@ public class WeatherApp extends Application {
         return langBox;
     }
 
-    // Favourites can be accessed here
     private ComboBox<String> favouritesBox = new ComboBox<>();
 
     private ComboBox<String> favouritesDropBox() {

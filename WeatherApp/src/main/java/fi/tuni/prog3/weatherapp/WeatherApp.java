@@ -2,6 +2,7 @@ package fi.tuni.prog3.weatherapp;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -159,13 +160,10 @@ public class WeatherApp extends Application {
     }
 
     private HBox getFirstNavBar() {
-        // Creating top box for buttons
         HBox topHBox = new HBox();
         topHBox.setPadding(new Insets(5, 5, 0, 5));
         topHBox.setPrefHeight(50);
         topHBox.setStyle("-fx-background-color: #05de29;");
-
-        // creating unit toggle button
 
         Button unitButton = getUnitToggleButton();
         unitButton.setMinWidth(60);
@@ -423,6 +421,13 @@ public class WeatherApp extends Application {
         dayColumn.setSpacing(10);
         VBox.setVgrow(dayColumn, Priority.NEVER);
 
+        String temp_type;
+        if (unit.equals("metric")) {
+            temp_type = "°C";
+        } else {
+            temp_type = "°F";
+        }
+
         String temperatureMin;
         String temperatureMax;
         String dayOfWeek;
@@ -466,8 +471,8 @@ public class WeatherApp extends Application {
         // Elements to display weather data
         Label dayOfWeekLabel = new Label(dayOfWeek);
         Label dayOfMonthLabel = new Label(dayOfMonth);
-        Label minTempLabel = new Label("Min: " + temperatureMin);
-        Label maxTempLabel = new Label("Max: " + temperatureMax);
+        Label minTempLabel = new Label("Min: " + temperatureMin + " " + temp_type);
+        Label maxTempLabel = new Label("Max: " + temperatureMax + " " + temp_type);
         Label weatherStatusLabel = new Label(weatherStatus);
 
         // Set font and style
@@ -514,16 +519,23 @@ public class WeatherApp extends Application {
         middleScrollPane.setContent(dailyHbox);
     }
 
-    private void showMapContent() {
-        WebView webView = new WebView();
-        WebEngine webEngine = webView.getEngine();
-        webEngine.loadContent(getHTMLContent(city_loc));
+private void showMapContent() {
+    WebView webView = new WebView();
+    WebEngine webEngine = webView.getEngine();
+    webEngine.loadContent(getHTMLContent(city_loc));
 
-        VBox mapContent = new VBox(webView);
-        mapContent.setPrefHeight(250);
+    VBox mapContent = new VBox(webView);
+    mapContent.setPrefHeight(250);
 
-        middleScrollPane.setContent(mapContent);
-    }
+    middleScrollPane.setContent(mapContent);
+
+    // Trigger change event for layer select after setting initial value
+    webEngine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+        if (newValue == Worker.State.SUCCEEDED) {
+            webEngine.executeScript("var layerSelect = document.getElementById('layer-select'); layerSelect.dispatchEvent(new Event('change'));");
+        }
+    });
+}
 
     private String getHTMLContent(String city) {
         String htmlContent = "<!DOCTYPE html>\n" +
@@ -555,7 +567,6 @@ public class WeatherApp extends Application {
                 "    <option value=\"temp_new\">Temperature</option>\n" +
                 "    <option value=\"clouds_new\">Clouds</option>\n" +
                 "    <option value=\"precipitation_new\">Precipitation</option>\n" +
-                "    <!-- Add other options for different layers -->\n" +
                 "  </select>\n" +
                 "</div>\n" +
                 "<script src=\"https://unpkg.com/leaflet@1.7.1/dist/leaflet.js\"></script>\n" +
@@ -563,6 +574,8 @@ public class WeatherApp extends Application {
                 "  var map = L.map('map').setView([0, 0], 2); // Set the initial view\n" +
                 "  var currentLayer;\n" +
                 "  var layerSelect = document.getElementById('layer-select');\n" +
+                "  var initialLayer = 'temp_new'; // Set the initial layer (Temperature)\n" +
+                "  layerSelect.value = initialLayer; // Set the dropdown value\n" +
                 "  layerSelect.addEventListener('change', function() {\n" +
                 "    var selectedLayer = layerSelect.value;\n" +
                 "    if (currentLayer) {\n" +
@@ -1160,6 +1173,7 @@ public class WeatherApp extends Application {
             // Update hourly columns
             updateHourlyColumns();
             updateDailyColumns();
+            showMapContent();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -1239,12 +1253,17 @@ public class WeatherApp extends Application {
     private void updateFavouritesComboBox() {
         favouritesDropBox().getItems().clear();
         favouritesDropBox().getItems().setAll(favourites);
+
+        // This updates the text in case box is emptied
+        updateFavBoxText();
     }
 
     // This method updates the favoruites combobox text if it is
     private void updateFavBoxText() {
 
-        favouritesBox.setPromptText("Favourites");
+        if (favouritesBox.getItems().isEmpty() || favourites.isEmpty()) {
+            favouritesBox.setPromptText("Favourites");
+        }
 
     }
 

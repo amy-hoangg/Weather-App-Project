@@ -130,10 +130,12 @@ public class WeatherApp extends Application {
         root.setCenter(getCenterVBox());
 
         // Adding button to the BorderPane and aligning it to the right.
-/*         var quitButton = getQuitButton();
-        BorderPane.setMargin(quitButton, new Insets(10, 10, 0, 10));
-        root.setBottom(quitButton);
-        BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT); */
+        /*
+         * var quitButton = getQuitButton();
+         * BorderPane.setMargin(quitButton, new Insets(10, 10, 0, 10));
+         * root.setBottom(quitButton);
+         * BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
+         */
 
         Scene scene = new Scene(root, 650, 900);
         stage.setScene(scene);
@@ -1267,30 +1269,62 @@ public class WeatherApp extends Application {
     }
 
     private ComboBox<String> favouritesDropBox() {
-
-        // Initialize favouritesBox only if it's not already initialized
-        if (favouritesBox == null) {
-            favouritesBox = new ComboBox<>();
-        }
-
-        // Add selected favourite to search box
-        favouritesBox.setOnAction(event -> {
-            String selectedFavourite = favouritesBox.getValue();
-            if (selectedFavourite != null) {
-                locField.setText(selectedFavourite);
-                locButton.fire();
+        try {
+            // Initialize favouritesBox only if it's not already initialized
+            if (favouritesBox == null) {
+                favouritesBox = new ComboBox<>();
             }
-
-        });
-
-        if (favouritesBox.getItems().isEmpty()) {
-            // Siphon favourites here
-            favouritesBox.getItems().setAll(favourites);
+    
+            // Add selected favourite to search box
+            favouritesBox.setOnAction(event -> {
+                String selectedFavourite = favouritesBox.getValue();
+                if (selectedFavourite != null) {
+                    locField.setText(selectedFavourite);
+                    locButton.fire();
+                }
+            });
+    
+            // Check if favourites is null or empty before setting items
+            if (favouritesBox.getItems().isEmpty() && favourites != null && !favourites.isEmpty()) {
+                // Siphon favourites here
+                favouritesBox.getItems().setAll(favourites);
+            }
+    
+            return favouritesBox;
+        } catch (Exception e) {
+            e.printStackTrace(); // or log the exception
         }
-
         return favouritesBox;
-
     }
+    
+
+    /*
+     * private ComboBox<String> favouritesDropBox() {
+     * 
+     * // Initialize favouritesBox only if it's not already initialized
+     * if (favouritesBox == null) {
+     * favouritesBox = new ComboBox<>();
+     * }
+     * 
+     * // Add selected favourite to search box
+     * favouritesBox.setOnAction(event -> {
+     * String selectedFavourite = favouritesBox.getValue();
+     * if (selectedFavourite != null) {
+     * locField.setText(selectedFavourite);
+     * locButton.fire();
+     * }
+     * 
+     * });
+     * 
+     * if (favouritesBox.getItems().isEmpty()) {
+     * // Siphon favourites here
+     * favouritesBox.getItems().setAll(favourites);
+     * }
+     * 
+     * return favouritesBox;
+     * 
+     * }
+     */
 
     // This method updates the items in the ComboBox
     private void updateFavouritesComboBox() {
@@ -1310,59 +1344,57 @@ public class WeatherApp extends Application {
 
     }
 
-// Getter methods for unit testing
-public String getApiKey(){
-    return this.api_key_Abu;
-}
+    // Getter methods for unit testing
+    public String getApiKey() {
+        return this.api_key_Abu;
+    }
 
-public String getLocation(){
-    return this.city_loc;
-}
+    public String getLocation() {
+        return this.city_loc;
+    }
 
-public String getUnit(){
-    return this.unit;
-}
+    public String getUnit() {
+        return this.unit;
+    }
 
-public String getLang(){
-    return this.lang;
-}
+    public String getLang() {
+        return this.lang;
+    }
 
-public ComboBox<String> getLangBox(){
-    return this.langBox;
-}
+    public ComboBox<String> getLangBox() {
+        return this.langBox;
+    }
 
-public ComboBox<String> getFavBox(){
-    return this.favouritesBox;
-}
+    public ComboBox<String> getFavBox() {
+        return this.favouritesBox;
+    }
 
-public TextField getLocField() {
-    return locField;
-}
+    public TextField getLocField() {
+        return locField;
+    }
 
-public Label getLocLabel() {
-    return locLabel;
-}
+    public Label getLocLabel() {
+        return locLabel;
+    }
 
-public Text getTemperText() {
-    return temperText;
-}
+    public Text getTemperText() {
+        return temperText;
+    }
 
-public Text getFeelsText() {
-    return feelsText;
-}
+    public Text getFeelsText() {
+        return feelsText;
+    }
 
-public Text getWindText() {
-    return windText;
-}
+    public Text getWindText() {
+        return windText;
+    }
 
-public Text getDescriptionText() {
-    return descriptionText;
-}
+    public Text getDescriptionText() {
+        return descriptionText;
+    }
 
-public ImageView getWeatherImage() {
-    return weatherImage;
-}
-
-
+    public ImageView getWeatherImage() {
+        return weatherImage;
+    }
 
 }

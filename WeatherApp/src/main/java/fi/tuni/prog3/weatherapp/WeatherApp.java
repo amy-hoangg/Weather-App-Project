@@ -110,8 +110,6 @@ public class WeatherApp extends Application {
     private Button locButton;
     private Button favButton;
     private ComboBox<String> langBox;
-    private boolean isMapShown;
-    private boolean isForecastShown = true;
 
     @Override
     public void start(Stage stage) {
@@ -132,7 +130,7 @@ public class WeatherApp extends Application {
         root.setBottom(quitButton);
         BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
 
-        Scene scene = new Scene(root, 700, 900);
+        Scene scene = new Scene(root, 650, 900);
         stage.setScene(scene);
         stage.setTitle("WeatherApp");
         stage.show();
@@ -165,7 +163,7 @@ public class WeatherApp extends Application {
         HBox topHBox = new HBox();
         topHBox.setPadding(new Insets(5, 5, 0, 5));
         topHBox.setPrefHeight(50);
-        topHBox.setStyle("-fx-background-color: #05de29;");
+        topHBox.setStyle("-fx-background-color: #06cccc;");
 
         Button unitButton = getUnitToggleButton();
         unitButton.setMinWidth(60);
@@ -240,6 +238,8 @@ public class WeatherApp extends Application {
         todayBox.setPrefHeight(300);
         todayBox.setStyle("-fx-background-color: #FFFFFF;");
 
+        // Creating vertical box that will store location, temperature, weather
+        // description, images etc in seperate horizontal boxes
         VBox weatherDataBox = new VBox();
         weatherDataBox.setPrefHeight(330);
         weatherDataBox.setPadding(new Insets(10, 10, 10, 10));
@@ -507,6 +507,7 @@ public class WeatherApp extends Application {
         }
 
         if (city_loc != null) {
+            // Create a column for each day
             for (int i = 0; i < 7; i++) {
                 VBox dayColumn = createDayColumn(i, city_loc, dailyWeatherData);
                 dailyHbox.getChildren().add(dayColumn);
@@ -515,14 +516,10 @@ public class WeatherApp extends Application {
     }
 
     private void showForecastContent() {
-        isMapShown = false;
-        isForecastShown = true;
         middleScrollPane.setContent(dailyHbox);
     }
 
     private void showMapContent() {
-        isMapShown = true;
-        isForecastShown = false;
         WebView webView = new WebView();
         WebEngine webEngine = webView.getEngine();
         webEngine.loadContent(getHTMLContent(city_loc));
@@ -542,13 +539,6 @@ public class WeatherApp extends Application {
     }
 
     private String getHTMLContent(String city) {
-        String temp_type;
-        if (unit.equals("metric")) {
-            temp_type = "°C";
-        } else {
-            temp_type = "°F";
-        }
-
         String htmlContent = "<!DOCTYPE html>\n" +
                 "<html>\n" +
                 "<head>\n" +
@@ -603,7 +593,7 @@ public class WeatherApp extends Application {
                 "  }).addTo(map);\n" +
                 "  var city = '" + city + "';\n" + // Get the city/location from input
                 "  var url = 'https://api.openweathermap.org/data/2.5/weather?q=' + city + '&appid=" + api_key_Abu
-                + "&units=" + unit + "&lang=" + lang + "';\n" +
+                + "';\n" +
                 "  fetch(url)\n" +
                 "    .then(response => response.json())\n" +
                 "    .then(data => {\n" +
@@ -611,8 +601,8 @@ public class WeatherApp extends Application {
                 "      var lon = data.coord.lon;\n" +
                 "      map.setView([lat, lon], 10); // Set map view to the coordinates of the searched location\n" +
                 "      L.marker([lat, lon]).addTo(map)\n" +
-                "        .bindPopup('<b>" + city + "</b><br>Temperature: ' + (data.main.temp).toFixed(1) + '"
-                + temp_type + "').openPopup();\n" +
+                "        .bindPopup('<b>" + city
+                + "</b><br>Temperature: ' + (data.main.temp - 273.15).toFixed(2) + '°C').openPopup();\n" +
                 "    });\n" +
                 "</script>\n" +
                 "</body>\n" +
@@ -704,7 +694,7 @@ public class WeatherApp extends Application {
         VBox hourColumn = new VBox();
         hourColumn.setAlignment(Pos.TOP_CENTER);
         hourColumn.setMaxHeight(10);
-        hourColumn.setSpacing(10);
+        hourColumn.setSpacing(12);
         VBox.setVgrow(hourColumn, Priority.NEVER);
         // hourColumn.setPadding(new Insets(5,5,5,5));
 
@@ -725,11 +715,13 @@ public class WeatherApp extends Application {
         String temp_type;
         String speed_type;
         if (unit.equals("metric")) {
-            temp_type = "°C";
-            speed_type = "m/s";
+            temp_type = " °C";
+            // Meters per second
+            speed_type = " m/s";
         } else {
-            temp_type = "°F";
-            speed_type = "m/h";
+            temp_type = " °F";
+            // Miles per hour
+            speed_type = " mph";
         }
 
         // Placeholder image
@@ -964,12 +956,18 @@ public class WeatherApp extends Application {
             {
                 String rawString = todaysData.getWeather().get(0).getDescription();
 
-                if (!lang.equals("zh_cn") && !lang.equals("vi") && !lang.equals("ar")) { // Only format if allowed
-                    descriptionText.setText(rawString.substring(0, 1).toUpperCase() + rawString.substring(1) + ".");
+                if (lang.equals("zh_cn")) { // Only format if allowed
+                    descriptionText.setText(rawString);
+
+                }
+
+                else if (lang.equals("ar")) {
+                    descriptionText.setText((rawString) + ".");
+
                 }
 
                 else {
-                    descriptionText.setText(rawString);
+                    descriptionText.setText(rawString.substring(0, 1).toUpperCase() + rawString.substring(1) + ".");
 
                 }
             }
@@ -1043,7 +1041,7 @@ public class WeatherApp extends Application {
 
             switch (unit) {
                 case "metric":
-                    windSpeed = String.format("༄ %.1f", windDouble) + " kph";
+                    windSpeed = String.format("༄ %.1f", windDouble) + " m/s";
 
                     break;
 
@@ -1180,9 +1178,7 @@ public class WeatherApp extends Application {
             isFavourite();
             updateHourlyColumns();
             updateDailyColumns();
-            if (isMapShown) {
-                showMapContent();
-            }
+            showMapContent();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -1277,4 +1273,3 @@ public class WeatherApp extends Application {
     }
 
 }
-

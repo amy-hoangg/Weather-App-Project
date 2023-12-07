@@ -721,11 +721,7 @@ public class WeatherApp extends Application {
         } else {
             temp_type = " °F";
             // Miles per hour
-<<<<<<< HEAD
-            speed_type = "mph";
-=======
             speed_type = " mph";
->>>>>>> main
         }
 
         // Placeholder image
@@ -1050,7 +1046,7 @@ public class WeatherApp extends Application {
                     break;
 
                 case "imperial":
-                    windSpeed = String.format("༄ %.1f", windDouble) + " m/h";
+                    windSpeed = String.format("༄ %.1f", windDouble) + " mph";
 
                     break;
             }

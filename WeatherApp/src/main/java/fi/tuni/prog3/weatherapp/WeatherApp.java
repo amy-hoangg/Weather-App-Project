@@ -18,6 +18,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -74,8 +75,9 @@ public class WeatherApp extends Application {
     // memory usage
     private static Image placeholderImage;
 
-    // Main color of the program
+    // Color profile of the program
     private String main_color = "#06cccc";
+    private String accent_color = "#dcfaf9";
 
     // Favourites are stored in these
     private List<String> favourites = new ArrayList<String>();
@@ -694,6 +696,9 @@ public class WeatherApp extends Application {
         // This box has two elements, the quit button and the quote box
         var quitButton = getQuitButton();
         VBox quoteVBox = getQuoteVBox();
+
+        quitButton.setStyle("; -fx-border-color: " + main_color + "; -fx-border-width: 2px;");
+
 
         // Make quoteVBox take up all available horizontal space
         HBox.setHgrow(quoteVBox, Priority.ALWAYS);
@@ -1326,30 +1331,62 @@ public class WeatherApp extends Application {
     }
 
     private ComboBox<String> favouritesDropBox() {
-
-        // Initialize favouritesBox only if it's not already initialized
-        if (favouritesBox == null) {
-            favouritesBox = new ComboBox<>();
-        }
-
-        // Add selected favourite to search box
-        favouritesBox.setOnAction(event -> {
-            String selectedFavourite = favouritesBox.getValue();
-            if (selectedFavourite != null) {
-                locField.setText(selectedFavourite);
-                locButton.fire();
+        try {
+            // Initialize favouritesBox only if it's not already initialized
+            if (favouritesBox == null) {
+                favouritesBox = new ComboBox<>();
             }
-
-        });
-
-        if (favouritesBox.getItems().isEmpty()) {
-            // Siphon favourites here
-            favouritesBox.getItems().setAll(favourites);
+    
+            // Add selected favourite to search box
+            favouritesBox.setOnAction(event -> {
+                String selectedFavourite = favouritesBox.getValue();
+                if (selectedFavourite != null) {
+                    locField.setText(selectedFavourite);
+                    locButton.fire();
+                }
+            });
+    
+            // Check if favourites is null or empty before setting items
+            if (favouritesBox.getItems().isEmpty() && favourites != null && !favourites.isEmpty()) {
+                // Siphon favourites here
+                favouritesBox.getItems().setAll(favourites);
+            }
+    
+            return favouritesBox;
+        } catch (Exception e) {
+            e.printStackTrace(); // or log the exception
         }
-
         return favouritesBox;
-
     }
+    
+
+    /*
+     * private ComboBox<String> favouritesDropBox() {
+     * 
+     * // Initialize favouritesBox only if it's not already initialized
+     * if (favouritesBox == null) {
+     * favouritesBox = new ComboBox<>();
+     * }
+     * 
+     * // Add selected favourite to search box
+     * favouritesBox.setOnAction(event -> {
+     * String selectedFavourite = favouritesBox.getValue();
+     * if (selectedFavourite != null) {
+     * locField.setText(selectedFavourite);
+     * locButton.fire();
+     * }
+     * 
+     * });
+     * 
+     * if (favouritesBox.getItems().isEmpty()) {
+     * // Siphon favourites here
+     * favouritesBox.getItems().setAll(favourites);
+     * }
+     * 
+     * return favouritesBox;
+     * 
+     * }
+     */
 
     // This method updates the items in the ComboBox
     private void updateFavouritesComboBox() {

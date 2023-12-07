@@ -8,6 +8,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
@@ -49,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class WeatherApp extends Application {
 
@@ -114,7 +117,8 @@ public class WeatherApp extends Application {
     private Button favButton;
     private ComboBox<String> langBox;
     private boolean isMapShown;
-    private boolean isForecastShown = true;
+    private boolean isForecastShown;
+    private boolean isHistoryShown;
 
     @Override
     public void start(Stage stage) {
@@ -130,10 +134,12 @@ public class WeatherApp extends Application {
         root.setCenter(getCenterVBox());
 
         // Adding button to the BorderPane and aligning it to the right.
-/*         var quitButton = getQuitButton();
-        BorderPane.setMargin(quitButton, new Insets(10, 10, 0, 10));
-        root.setBottom(quitButton);
-        BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT); */
+        /*
+         * var quitButton = getQuitButton();
+         * BorderPane.setMargin(quitButton, new Insets(10, 10, 0, 10));
+         * root.setBottom(quitButton);
+         * BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
+         */
 
         Scene scene = new Scene(root, 650, 900);
         stage.setScene(scene);
@@ -524,18 +530,19 @@ public class WeatherApp extends Application {
     private void showForecastContent() {
         isMapShown = false;
         isForecastShown = true;
+        isHistoryShown = false;
         middleScrollPane.setContent(dailyHbox);
     }
 
     private void showMapContent() {
         isMapShown = true;
         isForecastShown = false;
+        isHistoryShown = false;
         WebView webView = new WebView();
         WebEngine webEngine = webView.getEngine();
         webEngine.loadContent(getHTMLContent(city_loc));
 
         VBox mapContent = new VBox(webView);
-        mapContent.setPrefHeight(250);
 
         middleScrollPane.setContent(mapContent);
 
@@ -629,8 +636,55 @@ public class WeatherApp extends Application {
     }
 
     private void showHistoryContent() {
-    }
+        isMapShown = false;
+        isForecastShown = false;
+        isHistoryShown = true;
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader("history.json"));
+            StringBuilder historyJson = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                historyJson.append(line).append("\n");
+            }
+            bufferedReader.close();
 
+            Gson gson = new Gson();
+            List<Map<String, Object>> historyList = gson.fromJson(historyJson.toString(),
+                    new TypeToken<List<Map<String, Object>>>() {}.getType());
+
+            VBox historyContent = new VBox();
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
+            for (Map<String, Object> entry : historyList) {
+                StringBuilder entryContent = new StringBuilder();
+                if (entry.containsKey("timestamp")) {
+                    String timestamp = entry.get("timestamp").toString();
+                    entryContent.append("Timestamp: ").append(timestamp).append("\n");
+
+                    if (entry.size() > 1) {
+                        for (Map.Entry<String, Object> detail : entry.entrySet()) {
+                            if (!detail.getKey().equals("timestamp")) {
+                                entryContent.append(detail.getKey()).append(": ").append(detail.getValue()).append("\n");
+                            }
+                        }
+                    }
+
+                    Label entryLabel = new Label(entryContent.toString());
+                    historyContent.getChildren().add(entryLabel);
+                }
+            }
+
+            middleScrollPane.setContent(historyContent);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setContentText("Failed to read history data");
+            alert.showAndWait();
+        }
+    }    
+       
     private HBox getBottomHBox() {
         HBox bottomHBox = new HBox(10);
         bottomHBox.setPrefHeight(100);
@@ -1217,6 +1271,11 @@ public class WeatherApp extends Application {
             if (isMapShown) {
                 showMapContent();
             }
+            if (isHistoryShown) {
+                showHistoryContent();
+            }
+            SearchHistoryManager historyManager = new SearchHistoryManager();
+            historyManager.addToHistory(city_loc);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -1310,59 +1369,57 @@ public class WeatherApp extends Application {
 
     }
 
-// Getter methods for unit testing
-public String getApiKey(){
-    return this.api_key_Abu;
-}
+    // Getter methods for unit testing
+    public String getApiKey() {
+        return this.api_key_Abu;
+    }
 
-public String getLocation(){
-    return this.city_loc;
-}
+    public String getLocation() {
+        return this.city_loc;
+    }
 
-public String getUnit(){
-    return this.unit;
-}
+    public String getUnit() {
+        return this.unit;
+    }
 
-public String getLang(){
-    return this.lang;
-}
+    public String getLang() {
+        return this.lang;
+    }
 
-public ComboBox<String> getLangBox(){
-    return this.langBox;
-}
+    public ComboBox<String> getLangBox() {
+        return this.langBox;
+    }
 
-public ComboBox<String> getFavBox(){
-    return this.favouritesBox;
-}
+    public ComboBox<String> getFavBox() {
+        return this.favouritesBox;
+    }
 
-public TextField getLocField() {
-    return locField;
-}
+    public TextField getLocField() {
+        return locField;
+    }
 
-public Label getLocLabel() {
-    return locLabel;
-}
+    public Label getLocLabel() {
+        return locLabel;
+    }
 
-public Text getTemperText() {
-    return temperText;
-}
+    public Text getTemperText() {
+        return temperText;
+    }
 
-public Text getFeelsText() {
-    return feelsText;
-}
+    public Text getFeelsText() {
+        return feelsText;
+    }
 
-public Text getWindText() {
-    return windText;
-}
+    public Text getWindText() {
+        return windText;
+    }
 
-public Text getDescriptionText() {
-    return descriptionText;
-}
+    public Text getDescriptionText() {
+        return descriptionText;
+    }
 
-public ImageView getWeatherImage() {
-    return weatherImage;
-}
-
-
+    public ImageView getWeatherImage() {
+        return weatherImage;
+    }
 
 }

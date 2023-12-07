@@ -1,0 +1,66 @@
+[
+{
+  "timestamp": "2023-12-07T16:33:17.582934",
+  "city_loc": "London"
+},
+{
+  "timestamp": "2023-12-07T16:34:51.022293",
+  "city_loc": "London"
+},
+{
+  "timestamp": "2023-12-07T16:38:38.110541",
+  "city_loc": "London"
+},
+{
+  "timestamp": "2023-12-07T16:38:51.335604",
+  "city_loc": "Helsinki"
+},
+{
+  "timestamp": "2023-12-07T16:39:05.394807",
+  "city_loc": "London"
+},
+{
+  "timestamp": "2023-12-07T16:39:38.493872",
+  "city_loc": "Tampere"
+},
+{
+  "timestamp": "2023-12-07T16:39:47.616878",
+  "city_loc": "Tampere"
+},
+{
+  "timestamp": "2023-12-07T16:40:00.446755",
+  "city_loc": "Oulu"
+},
+{
+  "timestamp": "2023-12-07T16:40:17.225934",
+  "city_loc": "Tokyo"
+},
+{
+  "timestamp": "2023-12-07T16:42:59.489296",
+  "city_loc": "London"
+},
+{
+  "timestamp": "2023-12-07T16:43:28.87188",
+  "city_loc": "Hanoi"
+},
+{
+  "timestamp": "2023-12-07T16:44:08.101176",
+  "city_loc": "London"
+},
+{
+  "timestamp": "2023-12-07T16:44:17.656767",
+  "city_loc": "New York"
+},
+{
+  "timestamp": "2023-12-07T16:45:25.449494",
+  "city_loc": "London"
+},
+{
+  "timestamp": "2023-12-07T16:46:16.317705",
+  "city_loc": "London"
+},
+{
+  "timestamp": "2023-12-07T16:47:44.975793",
+  "city_loc": "London"
+}
+]

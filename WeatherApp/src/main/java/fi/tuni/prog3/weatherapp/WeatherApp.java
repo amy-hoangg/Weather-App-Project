@@ -693,7 +693,7 @@ private void showMapContent() {
         VBox hourColumn = new VBox();
         hourColumn.setAlignment(Pos.TOP_CENTER);
         hourColumn.setMaxHeight(10);
-        hourColumn.setSpacing(10);
+        hourColumn.setSpacing(12);
         VBox.setVgrow(hourColumn, Priority.NEVER);
         // hourColumn.setPadding(new Insets(5,5,5,5));
 
@@ -714,13 +714,13 @@ private void showMapContent() {
         String temp_type;
         String speed_type;
         if (unit.equals("metric")) {
-            temp_type = "°C";
+            temp_type = " °C";
             // Meters per second
-            speed_type = "m/s";
+            speed_type = " m/s";
         } else {
-            temp_type = "°F";
+            temp_type = " °F";
             // Miles per hour
-            speed_type = "m/h";
+            speed_type = " mph";
         }
 
         // Placeholder image

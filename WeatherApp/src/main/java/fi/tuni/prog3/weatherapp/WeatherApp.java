@@ -52,27 +52,30 @@ import com.google.gson.Gson;
 
 public class WeatherApp extends Application {
 
-    String unit = "metric";
-    String lang = "en";
+    private String unit = "metric";
+    private String lang = "en";
 
     // For error handling
-    Boolean LOCATION_NOT_FOUND = false;
+    private Boolean LOCATION_NOT_FOUND = false;
 
     // Container for current city weather data
-    Map<String, CurrentWeatherData> current_history = new HashMap<>();
-    Map<String, HourlyWeatherData> hourly_history = new HashMap<>();
-    Map<String, DailyWeatherData> daily_history = new HashMap<>();
+    private Map<String, CurrentWeatherData> current_history = new HashMap<>();
+    private Map<String, HourlyWeatherData> hourly_history = new HashMap<>();
+    private Map<String, DailyWeatherData> daily_history = new HashMap<>();
 
     // Container for cached images to reduce memory usage
     // The key is the weather status icon id (for example "04n")
-    Map<String, Image> imageCache = new HashMap<>();
+    private Map<String, Image> imageCache = new HashMap<>();
 
     // Placeholder image is used often so load it once here to reduce
     // memory usage
     private static Image placeholderImage;
 
+    // Main color of the program
+    private String main_color = "#06cccc";
+
     // Favourites are stored in these
-    List<String> favourites = new ArrayList<String>();
+    private List<String> favourites = new ArrayList<String>();
     private ComboBox<String> favouritesBox = favouritesDropBox();
 
     private static String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
@@ -127,10 +130,10 @@ public class WeatherApp extends Application {
         root.setCenter(getCenterVBox());
 
         // Adding button to the BorderPane and aligning it to the right.
-        var quitButton = getQuitButton();
+/*         var quitButton = getQuitButton();
         BorderPane.setMargin(quitButton, new Insets(10, 10, 0, 10));
         root.setBottom(quitButton);
-        BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
+        BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT); */
 
         Scene scene = new Scene(root, 650, 900);
         stage.setScene(scene);
@@ -138,7 +141,8 @@ public class WeatherApp extends Application {
         stage.show();
 
         // Connecting X-button to quit-button
-        stage.setOnCloseRequest(event -> quitButton.fire());
+        // stage.setOnCloseRequest(event -> quitButton.fire());
+        stage.setOnCloseRequest(event -> getQuitButton().fire());
     }
 
     public static void main(String[] args) {
@@ -156,7 +160,7 @@ public class WeatherApp extends Application {
 
         // Add all boxes and scrollpane to centerbox
         centerHBox.getChildren().addAll(getFirstNavBar(), getTodayBox(), getSecondNavBar(),
-                getMiddleScrollPane(), getBottomScrollPane(), getBottomVBox());
+                getMiddleScrollPane(), getBottomScrollPane(), getBottomHBox());
 
         return centerHBox;
     }
@@ -165,7 +169,7 @@ public class WeatherApp extends Application {
         HBox topHBox = new HBox();
         topHBox.setPadding(new Insets(5, 5, 0, 5));
         topHBox.setPrefHeight(50);
-        topHBox.setStyle("-fx-background-color: #06cccc;");
+        topHBox.setStyle("-fx-background-color: " + main_color);
 
         Button unitButton = getUnitToggleButton();
         unitButton.setMinWidth(60);
@@ -627,7 +631,25 @@ public class WeatherApp extends Application {
     private void showHistoryContent() {
     }
 
-    private VBox getBottomVBox() {
+    private HBox getBottomHBox() {
+        HBox bottomHBox = new HBox(10);
+        bottomHBox.setPrefHeight(100);
+        bottomHBox.setStyle("-fx-background-color: white;");
+        bottomHBox.setAlignment(Pos.BOTTOM_RIGHT);
+
+        // This box has two elements, the quit button and the quote box
+        var quitButton = getQuitButton();
+        VBox quoteVBox = getQuoteVBox();
+
+        // Make quoteVBox take up all available horizontal space
+        HBox.setHgrow(quoteVBox, Priority.ALWAYS);
+        quitButton.setAlignment(Pos.BOTTOM_RIGHT);
+        bottomHBox.getChildren().addAll(quoteVBox, quitButton);
+
+        return bottomHBox;
+    }
+
+    private VBox getQuoteVBox() {
         VBox bottomVBox = new VBox(10);
         bottomVBox.setPrefHeight(100);
         bottomVBox.setStyle("-fx-background-color: white;");
@@ -670,6 +692,7 @@ public class WeatherApp extends Application {
         bottomBoxTitle.setGraphic(new VBox(quoteText, attributionText));
 
         bottomVBox.getChildren().addAll(bottomBoxTitle);
+
         return bottomVBox;
     }
 

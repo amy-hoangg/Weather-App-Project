@@ -444,8 +444,8 @@ public class WeatherApp extends Application {
         dayOfMonth = dateTime.format(DateTimeFormatter.ofPattern("d.M"));
 
         // Get temperature details
-        temperatureMin = String.format("%.0f°C", currentDayWeatherData.getTemp().getMin());
-        temperatureMax = String.format("%.0f°C", currentDayWeatherData.getTemp().getMax());
+        temperatureMin = String.format("%.0f", currentDayWeatherData.getTemp().getMin());
+        temperatureMax = String.format("%.0f", currentDayWeatherData.getTemp().getMax());
 
         // Get weather status
         String weatherStatus = "No data"; // Default value
@@ -1169,8 +1169,6 @@ private void showMapContent() {
             updateFeelsText();
             updateWindSpeed();
             isFavourite();
-
-            // Update hourly columns
             updateHourlyColumns();
             updateDailyColumns();
             showMapContent();

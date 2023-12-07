@@ -110,6 +110,8 @@ public class WeatherApp extends Application {
     private Button locButton;
     private Button favButton;
     private ComboBox<String> langBox;
+    private boolean isMapShown;
+    private boolean isForecastShown = true;
 
     @Override
     public void start(Stage stage) {
@@ -516,10 +518,14 @@ public class WeatherApp extends Application {
     }
 
     private void showForecastContent() {
+        isMapShown = false;
+        isForecastShown = true;
         middleScrollPane.setContent(dailyHbox);
     }
 
     private void showMapContent() {
+        isMapShown = true;
+        isForecastShown = false;
         WebView webView = new WebView();
         WebEngine webEngine = webView.getEngine();
         webEngine.loadContent(getHTMLContent(city_loc));
@@ -539,6 +545,13 @@ public class WeatherApp extends Application {
     }
 
     private String getHTMLContent(String city) {
+        String temp_type;
+        if (unit.equals("metric")) {
+            temp_type = "°C";
+        } else {
+            temp_type = "°F";
+        }
+
         String htmlContent = "<!DOCTYPE html>\n" +
                 "<html>\n" +
                 "<head>\n" +
@@ -593,7 +606,7 @@ public class WeatherApp extends Application {
                 "  }).addTo(map);\n" +
                 "  var city = '" + city + "';\n" + // Get the city/location from input
                 "  var url = 'https://api.openweathermap.org/data/2.5/weather?q=' + city + '&appid=" + api_key_Abu
-                + "';\n" +
+                + "&units=" + unit + "&lang=" + lang + "';\n" +
                 "  fetch(url)\n" +
                 "    .then(response => response.json())\n" +
                 "    .then(data => {\n" +
@@ -601,8 +614,8 @@ public class WeatherApp extends Application {
                 "      var lon = data.coord.lon;\n" +
                 "      map.setView([lat, lon], 10); // Set map view to the coordinates of the searched location\n" +
                 "      L.marker([lat, lon]).addTo(map)\n" +
-                "        .bindPopup('<b>" + city
-                + "</b><br>Temperature: ' + (data.main.temp - 273.15).toFixed(2) + '°C').openPopup();\n" +
+                "        .bindPopup('<b>" + city + "</b><br>Temperature: ' + (data.main.temp).toFixed(1) + '"
+                + temp_type + "').openPopup();\n" +
                 "    });\n" +
                 "</script>\n" +
                 "</body>\n" +
@@ -1178,7 +1191,9 @@ public class WeatherApp extends Application {
             isFavourite();
             updateHourlyColumns();
             updateDailyColumns();
-            showMapContent();
+            if (isMapShown) {
+                showMapContent();
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

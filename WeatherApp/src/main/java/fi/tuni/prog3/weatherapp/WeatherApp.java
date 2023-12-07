@@ -130,7 +130,7 @@ public class WeatherApp extends Application {
         root.setBottom(quitButton);
         BorderPane.setAlignment(quitButton, Pos.TOP_RIGHT);
 
-        Scene scene = new Scene(root, 700, 900);
+        Scene scene = new Scene(root, 650, 900);
         stage.setScene(scene);
         stage.setTitle("WeatherApp");
         stage.show();

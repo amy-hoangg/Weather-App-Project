@@ -163,7 +163,7 @@ public class WeatherApp extends Application {
         HBox topHBox = new HBox();
         topHBox.setPadding(new Insets(5, 5, 0, 5));
         topHBox.setPrefHeight(50);
-        topHBox.setStyle("-fx-background-color: #05de29;");
+        topHBox.setStyle("-fx-background-color: #06cccc;");
 
         Button unitButton = getUnitToggleButton();
         unitButton.setMinWidth(60);
@@ -519,23 +519,24 @@ public class WeatherApp extends Application {
         middleScrollPane.setContent(dailyHbox);
     }
 
-private void showMapContent() {
-    WebView webView = new WebView();
-    WebEngine webEngine = webView.getEngine();
-    webEngine.loadContent(getHTMLContent(city_loc));
+    private void showMapContent() {
+        WebView webView = new WebView();
+        WebEngine webEngine = webView.getEngine();
+        webEngine.loadContent(getHTMLContent(city_loc));
 
-    VBox mapContent = new VBox(webView);
-    mapContent.setPrefHeight(250);
+        VBox mapContent = new VBox(webView);
+        mapContent.setPrefHeight(250);
 
-    middleScrollPane.setContent(mapContent);
+        middleScrollPane.setContent(mapContent);
 
-    // Trigger change event for layer select after setting initial value
-    webEngine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
-        if (newValue == Worker.State.SUCCEEDED) {
-            webEngine.executeScript("var layerSelect = document.getElementById('layer-select'); layerSelect.dispatchEvent(new Event('change'));");
-        }
-    });
-}
+        // Trigger change event for layer select after setting initial value
+        webEngine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == Worker.State.SUCCEEDED) {
+                webEngine.executeScript(
+                        "var layerSelect = document.getElementById('layer-select'); layerSelect.dispatchEvent(new Event('change'));");
+            }
+        });
+    }
 
     private String getHTMLContent(String city) {
         String htmlContent = "<!DOCTYPE html>\n" +
@@ -720,7 +721,7 @@ private void showMapContent() {
         } else {
             temp_type = "°F";
             // Miles per hour
-            speed_type = "m/h";
+            speed_type = "mph";
         }
 
         // Placeholder image
@@ -955,12 +956,18 @@ private void showMapContent() {
             {
                 String rawString = todaysData.getWeather().get(0).getDescription();
 
-                if (!lang.equals("zh_cn") && !lang.equals("vi") && !lang.equals("ar")) { // Only format if allowed
-                    descriptionText.setText(rawString.substring(0, 1).toUpperCase() + rawString.substring(1) + ".");
+                if (lang.equals("zh_cn")) { // Only format if allowed
+                    descriptionText.setText(rawString);
+
+                }
+
+                else if (lang.equals("ar")) {
+                    descriptionText.setText((rawString) + ".");
+
                 }
 
                 else {
-                    descriptionText.setText(rawString);
+                    descriptionText.setText(rawString.substring(0, 1).toUpperCase() + rawString.substring(1) + ".");
 
                 }
             }
@@ -1034,12 +1041,12 @@ private void showMapContent() {
 
             switch (unit) {
                 case "metric":
-                    windSpeed = String.format("༄ %.1f", windDouble) + " kph";
+                    windSpeed = String.format("༄ %.1f", windDouble) + " m/s";
 
                     break;
 
                 case "imperial":
-                    windSpeed = String.format("༄ %.1f", windDouble) + " mph";
+                    windSpeed = String.format("༄ %.1f", windDouble) + " m/h";
 
                     break;
             }

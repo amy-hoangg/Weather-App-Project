@@ -721,11 +721,7 @@ public class WeatherApp extends Application {
         } else {
             temp_type = " °F";
             // Miles per hour
-<<<<<<< HEAD
-            speed_type = "mph";
-=======
             speed_type = " mph";
->>>>>>> main
         }
 
         // Placeholder image
@@ -811,7 +807,7 @@ public class WeatherApp extends Application {
 
     }
 
-    private String getWeatherData(String city, String api_key_Abu, String timespan) throws IOException {
+    public String getWeatherData(String city, String api_key_Abu, String timespan) throws IOException {
         String apiUrl;
         if (timespan.equals("hourly")) {
             apiUrl = "https://pro.openweathermap.org/data/2.5/forecast/hourly?q=" + city + "&appid=" + api_key_Abu
@@ -1170,7 +1166,7 @@ public class WeatherApp extends Application {
         }
     }
 
-    private void search() {
+    public void search() {
         try {
             getWeatherData(city_loc, api_key_Abu, "current");
             updateLocLabel();
@@ -1189,7 +1185,7 @@ public class WeatherApp extends Application {
         }
     }
 
-    private Button getUnitToggleButton() {
+    public Button getUnitToggleButton() {
         Button unitButton = new Button("Metric");
 
         unitButton.setOnAction((ActionEvent event) -> {
@@ -1275,5 +1271,60 @@ public class WeatherApp extends Application {
         }
 
     }
+
+// Getter methods for unit testing
+public String getApiKey(){
+    return this.api_key_Abu;
+}
+
+public String getLocation(){
+    return this.city_loc;
+}
+
+public String getUnit(){
+    return this.unit;
+}
+
+public String getLang(){
+    return this.lang;
+}
+
+public ComboBox<String> getLangBox(){
+    return this.langBox;
+}
+
+public ComboBox<String> getFavBox(){
+    return this.favouritesBox;
+}
+
+public TextField getLocField() {
+    return locField;
+}
+
+public Label getLocLabel() {
+    return locLabel;
+}
+
+public Text getTemperText() {
+    return temperText;
+}
+
+public Text getFeelsText() {
+    return feelsText;
+}
+
+public Text getWindText() {
+    return windText;
+}
+
+public Text getDescriptionText() {
+    return descriptionText;
+}
+
+public ImageView getWeatherImage() {
+    return weatherImage;
+}
+
+
 
 }

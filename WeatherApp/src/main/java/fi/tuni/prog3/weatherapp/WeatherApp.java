@@ -52,27 +52,30 @@ import com.google.gson.Gson;
 
 public class WeatherApp extends Application {
 
-    String unit = "metric";
-    String lang = "en";
+    private String unit = "metric";
+    private String lang = "en";
 
     // For error handling
-    Boolean LOCATION_NOT_FOUND = false;
+    private Boolean LOCATION_NOT_FOUND = false;
 
     // Container for current city weather data
-    Map<String, CurrentWeatherData> current_history = new HashMap<>();
-    Map<String, HourlyWeatherData> hourly_history = new HashMap<>();
-    Map<String, DailyWeatherData> daily_history = new HashMap<>();
+    private Map<String, CurrentWeatherData> current_history = new HashMap<>();
+    private Map<String, HourlyWeatherData> hourly_history = new HashMap<>();
+    private Map<String, DailyWeatherData> daily_history = new HashMap<>();
 
     // Container for cached images to reduce memory usage
     // The key is the weather status icon id (for example "04n")
-    Map<String, Image> imageCache = new HashMap<>();
+    private Map<String, Image> imageCache = new HashMap<>();
 
     // Placeholder image is used often so load it once here to reduce
     // memory usage
     private static Image placeholderImage;
 
+    // Main color of the program
+    private String main_color = "#06cccc";
+
     // Favourites are stored in these
-    List<String> favourites = new ArrayList<String>();
+    private List<String> favourites = new ArrayList<String>();
     private ComboBox<String> favouritesBox = favouritesDropBox();
 
     private static String api_key_Abu = "88a91051d6699b4cb230ff1ff2ebb3b1";
@@ -163,7 +166,7 @@ public class WeatherApp extends Application {
         HBox topHBox = new HBox();
         topHBox.setPadding(new Insets(5, 5, 0, 5));
         topHBox.setPrefHeight(50);
-        topHBox.setStyle("-fx-background-color: #06cccc;");
+        topHBox.setStyle("-fx-background-color: " + main_color);
 
         Button unitButton = getUnitToggleButton();
         unitButton.setMinWidth(60);

@@ -16,6 +16,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -71,8 +72,9 @@ public class WeatherApp extends Application {
     // memory usage
     private static Image placeholderImage;
 
-    // Main color of the program
+    // Color profile of the program
     private String main_color = "#06cccc";
+    private String accent_color = "#dcfaf9";
 
     // Favourites are stored in these
     private List<String> favourites = new ArrayList<String>();
@@ -642,6 +644,9 @@ public class WeatherApp extends Application {
         // This box has two elements, the quit button and the quote box
         var quitButton = getQuitButton();
         VBox quoteVBox = getQuoteVBox();
+
+        quitButton.setStyle("; -fx-border-color: " + main_color + "; -fx-border-width: 2px;");
+
 
         // Make quoteVBox take up all available horizontal space
         HBox.setHgrow(quoteVBox, Priority.ALWAYS);

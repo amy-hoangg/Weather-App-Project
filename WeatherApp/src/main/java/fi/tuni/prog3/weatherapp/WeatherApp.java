@@ -694,7 +694,7 @@ public class WeatherApp extends Application {
         VBox hourColumn = new VBox();
         hourColumn.setAlignment(Pos.TOP_CENTER);
         hourColumn.setMaxHeight(10);
-        hourColumn.setSpacing(10);
+        hourColumn.setSpacing(12);
         VBox.setVgrow(hourColumn, Priority.NEVER);
         // hourColumn.setPadding(new Insets(5,5,5,5));
 
@@ -715,13 +715,17 @@ public class WeatherApp extends Application {
         String temp_type;
         String speed_type;
         if (unit.equals("metric")) {
-            temp_type = "°C";
+            temp_type = " °C";
             // Meters per second
-            speed_type = "m/s";
+            speed_type = " m/s";
         } else {
-            temp_type = "°F";
+            temp_type = " °F";
             // Miles per hour
+<<<<<<< HEAD
             speed_type = "mph";
+=======
+            speed_type = " mph";
+>>>>>>> main
         }
 
         // Placeholder image

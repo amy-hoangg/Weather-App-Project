@@ -3,17 +3,24 @@ Overview
 
 This repository contains the source code for a Weather App developed as part of the Programming 3 group project. The Weather App is designed to provide users with current and forecasted weather information for various locations.
 
+GUI of the application
+![Alt text](weather1.png)
+![Alt text](weather2.png)
+![Alt text](weather3.png)
+![Alt text](weather4.png)
+
+
 Features
 
-    Current Weather Data: Retrieve and display real-time weather data for a specific location, including temperature, wind speed, and visibility.
-    Hourly Forecast: Display an hourly forecast for the next 24 hours, showing temperature, wind speed, and humidity.
-    Daily Forecast: Provide a 7-day weather forecast with details on daily temperature, weather conditions, and more.
-    Search History: Previously searched locations can be seen as timestamps in the history log.
-    Favorites: Users can mark locations as favorites for easy access to frequently checked weather updates. Favourites can be deleted all at once or idividually.
-    Internationalization: Support multiple languages for user interface elements. Ability to search for location in multiple languages regardless of the language selected.
-    Units: Temperature and wind speed can be seen in either metric or imperial units.
-    Memory: The program saves last searched location, last used units and last used language as defaults for next time the program is started.
-    Error handling: The program handles errors during file processing and if location is not found.
+    1. Current Weather Data: Retrieve and display real-time weather data for a specific location, including temperature, wind speed, and visibility.
+    2. Hourly Forecast: Display an hourly forecast for the next 24 hours, showing temperature, wind speed, and humidity.
+    3. Daily Forecast: Provide a 7-day weather forecast with details on daily temperature, weather conditions, and more.
+    4. Search History: Previously searched locations can be seen as timestamps in the history log.
+    5. Favorites: Users can mark locations as favorites for easy access to frequently checked weather updates. Favourites can be deleted all at once or idividually.
+    6. Internationalization: Support multiple languages for user interface elements. Ability to search for location in multiple languages regardless of the language selected.
+    7. Units: Temperature and wind speed can be seen in either metric or imperial units.
+    8. Memory: The program saves last searched location, last used units and last used language as defaults for next time the program is started.
+    9. Error handling: The program handles errors during file processing and if location is not found.
 
     Additional requirements
 
